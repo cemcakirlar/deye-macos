@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Renkler ve emojiler
+# ANSI color codes
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
@@ -28,14 +28,14 @@ for arg in "$@"; do
             DO_CLEAN=true
             ;;
         --help|-h)
-            echo "Kullanım: ./scripts/build.sh [--debug | --release] [--clean]"
-            echo "  --debug, -d   : Debug modunda derler (Varsayılan)"
-            echo "  --release, -r : Release (Prod) modunda derler"
-            echo "  --clean, -c   : Derleme öncesi önbelleği temizler"
+            echo "Usage: ./scripts/build.sh [--debug | --release] [--clean]"
+            echo "  --debug, -d   : Compile in Debug configuration (Default)"
+            echo "  --release, -r : Compile in Release configuration"
+            echo "  --clean, -c   : Clean build cache before compiling"
             exit 0
             ;;
         *)
-            echo -e "${RED}Bilinmeyen parametre: $arg${NC}"
+            echo -e "${RED}Unknown parameter: $arg${NC}"
             exit 1
             ;;
     esac
@@ -44,11 +44,11 @@ done
 DERIVED_DATA_DIR="$PROJECT_ROOT/.build/DerivedData"
 
 if [ "$DO_CLEAN" = true ]; then
-    echo -e "${YELLOW}🧹 Derleme önbelleği temizleniyor...${NC}"
+    echo -e "${YELLOW}🧹 Cleaning build cache...${NC}"
     rm -rf "$DERIVED_DATA_DIR"
 fi
 
-echo -e "${BLUE}${BOLD}🔨 DeyeMacOS derleniyor... [Mod: $CONFIG]${NC}"
+echo -e "${BLUE}${BOLD}🔨 Building DeyeMacOS... [Config: $CONFIG]${NC}"
 START_TIME=$(date +%s)
 
 xcodebuild \
@@ -67,12 +67,12 @@ DURATION=$((END_TIME - START_TIME))
 APP_PATH="$DERIVED_DATA_DIR/Build/Products/$CONFIG/DeyeMacOS.app"
 
 if [ -d "$APP_PATH" ]; then
-    # Yerel çalıştırma için ad-hoc kod imzalama
+    # Local ad-hoc codesigning
     codesign --force --deep --sign - "$APP_PATH" > /dev/null 2>&1 || true
 
-    echo -e "${GREEN}✅ Derleme başarıyla tamamlandı! (${DURATION}s)${NC}"
-    echo -e "   📦 Konum: ${BOLD}$APP_PATH${NC}"
+    echo -e "${GREEN}✅ Build completed successfully! (${DURATION}s)${NC}"
+    echo -e "   📦 Location: ${BOLD}$APP_PATH${NC}"
 else
-    echo -e "${RED}❌ Derleme tamamlandı fakat $APP_PATH bulunamadı!${NC}"
+    echo -e "${RED}❌ Build finished but $APP_PATH was not found!${NC}"
     exit 1
 fi

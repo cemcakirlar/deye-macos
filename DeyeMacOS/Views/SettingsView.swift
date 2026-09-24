@@ -8,6 +8,12 @@ public struct SettingsView: View {
         self.appState = appState
     }
 
+    private var appVersionString: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "Sürüm \(version) (\(build))"
+    }
+
     public var body: some View {
         VStack(spacing: 0) {
             // Header with title and close button
@@ -215,7 +221,7 @@ public struct SettingsView: View {
                         .font(.title2)
                         .fontWeight(.bold)
 
-                    Text("Sürüm 1.0.0")
+                    Text(appVersionString)
                         .font(.caption)
                         .foregroundStyle(.secondary)
 

@@ -1,161 +1,215 @@
-# Deye macOS
+# Deye Solar Monitor for macOS
 
-Deye solar inverter ve ev enerji depolama sistemleri için modern, hafif ve yerel (native) macOS takip uygulaması.
+A modern, lightweight, native macOS menu bar and desktop monitoring application for Deye solar inverters and home energy storage systems.
 
-DeyeCloud Open API (EU veri merkezi) ile entegre çalışır; anlık üretim, tüketim, şebeke ve batarya metriklerini hem modern bir macOS masaüstü penceresinde hem de menü çubuğunda (Menu Bar) anlık olarak gösterir.
-
----
-
-## Özellikler
-
-- **Menü Çubuğu (Menu Bar) Takibi:**
-  - macOS üst menü çubuğunda anlık güneş üretimi ve batarya doluluk oranı: `☀️ 2.4 kW · 🔋 %85`
-  - Farklı görünüm modları: *Güneş ve Batarya*, *Sadece Güneş*, *Tam Özet*, *Sadece İkon*.
-  - Menü simgesine tıklandığında açılan hızlı ve zarif popover kontrol paneli.
-- **Tam Ekran / Bağımsız Masaüstü Penceresi (Dual Mode):**
-  - İster menü çubuğundan kompakt takip edin, ister bağımsız bir pencerede büyük ve detaylı dashboard olarak açın.
-  - Canlı enerji akış diyagramı (Güneş PV -> İnvertör -> Şebeke / Ev / Batarya yön okları ve anlık güçler).
-- **Anlık Enerji Akışı:**
-  - Güneş üretimi (PV - W / kW)
-  - Batarya doluluk oranı (SOC %) ve dinamik durum çubuğu
-  - Batarya şarj / deşarj gücü (W)
-  - Ev tüketimi (W)
-  - Şebeke alış / satış gücü (W)
-- **Güvenlik (Security-first):**
-  - Hassas veriler (App Secret, hesap şifresi, API erişim token'ı) cihazın korumalı uygulama alanında (sandbox storage - Android DataStore eşdeğeri) saklanır; harici şifre istemi oluşturmaz.
-  - Şifreler DeyeCloud API protokolüne uygun olarak cihazda SHA-256 hex formatına dönüştürülür.
-  - App Sandbox kuralı ile yalnızca giden ağ bağlantısına izin verilir (`com.apple.security.network.client`).
-- **Çoklu İstasyon / Santral Desteği:**
-  - Hesaba bağlı birden fazla santral varsa otomatik tespit edilir ve kullanıcıya seçim imkanı sunulur (`StationPickerView`).
-  - Tek santral varsa otomatik olarak bağlanılır.
-- **Otomatik & Manuel Yenileme:**
-  - 1 dk, 3 dk, 5 dk, 10 dk, 15 dk veya 30 dk periyotlarla arka planda otomatik yenileme.
-  - Tek tıkla anında veri yenileme butonu.
-  - Bayat veri (stale - 15 dakikadan eski veri) uyarısı ve son güncelleme zamanı göstergesi.
+Seamlessly integrates with the DeyeCloud Open API (EU region) to display live PV production, household consumption, grid feed-in/purchase, and battery status directly in the macOS menu bar and in an elegant desktop dashboard window.
 
 ---
 
-## Teknoloji Yığını
+## Features
 
-| Bileşen | Teknoloji |
+- **Menu Bar Monitoring:**
+  - Live solar generation and battery state of charge (SOC): `☀️ 2.4 kW · 🔋 85%`
+  - Multiple display modes: *Solar & Battery*, *Solar Only*, *Full Summary*, or *Icon Only*.
+  - Fast, responsive popover dashboard when clicking the menu bar icon.
+- **Dual Display Modes (Menu Bar & Independent Desktop Window):**
+  - Use it as an unobtrusive menu bar companion or open a full desktop dashboard.
+  - Interactive live energy flow diagram (PV Array ➔ Inverter ➔ Grid / Home / Battery directional arrows and real-time power readings).
+- **Real-Time Energy Metrics:**
+  - Solar generation (PV - W / kW)
+  - Battery State of Charge (SOC %) with dynamic gradient indicators
+  - Battery charge / discharge power (W)
+  - Household consumption (W)
+  - Grid import / export power (W)
+- **Security-First Architecture:**
+  - Sensitive credentials (App Secret, password, API tokens) are securely stored in the sandboxed application container; no external password prompt interruptions.
+  - Password hashing via CryptoKit SHA-256 hex compliant with DeyeCloud API specifications.
+  - Strict App Sandbox entitlement (`com.apple.security.network.client`) allowing outgoing API connections only.
+- **Multi-Station Support:**
+  - Automatic detection of multiple power stations linked to your account with a quick station switcher (`StationPickerView`).
+  - Automatically selects single-station setups.
+- **Automatic & Manual Refresh:**
+  - Configurable background refresh intervals: 1m, 3m, 5m (default), 10m, 15m, or 30m.
+  - One-click immediate manual refresh button.
+  - Visual stale data indicators (warning when data is older than 15 minutes) with relative timestamps.
+
+---
+
+## Technology Stack
+
+| Component | Technology |
 |---|---|
-| **Dil** | Swift 6 (Strict Concurrency Safe) |
-| **Arayüz (UI)** | SwiftUI (macOS 14.0+) |
-| **Bileşenler** | MenuBarExtra (.window), Window, SF Symbols |
-| **Ağ & İstemci** | URLSession (async/await), Codable JSON |
-| **Şifreleme & Depolama** | CryptoKit (SHA-256), App Sandbox Korumalı Depolama (UserDefaults) |
-| **Derleme Araçları** | Xcode Projesi (`DeyeMacOS.xcodeproj`) & Swift Package Manager (`Package.swift`) |
+| **Language** | Swift 6 (Strict Concurrency Safe) |
+| **User Interface** | SwiftUI (macOS 14.0+ Sonoma / macOS 15.0+ Sequoia) |
+| **macOS Native Components** | MenuBarExtra (.window), WindowGroup, SF Symbols |
+| **Networking & API** | URLSession (async/await), Codable JSON |
+| **Cryptography & Storage** | Apple CryptoKit (SHA-256), App Sandboxed Local Storage |
+| **Build System** | Xcode Project (`DeyeMacOS.xcodeproj`) & Swift Package Manager (`Package.swift`) |
 
 ---
 
-## Proje Yapısı
+## Project Structure
 
 ```
 deye-macos/
 ├── scripts/
-│   ├── build.sh                 # Debug/Release derleme betiği
-│   ├── run.sh                   # Derleme ve başlatma betiği
-│   ├── stop.sh                  # Çalışan uygulamayı sonlandırma betiği
-│   ├── install.sh               # /Applications dizinine kurma betiği
-│   └── logs.sh                  # Canlı sistem loglarını dinleme betiği
-├── Makefile                     # make run / stop / install kısayolları
-├── DeyeMacOS.xcodeproj/         # Standart Xcode proje dosyası
+│   ├── build.sh                 # Debug/Release compilation script
+│   ├── run.sh                   # App build and launch script
+│   ├── stop.sh                  # Process termination script
+│   ├── install.sh               # Install to /Applications script
+│   ├── package.sh               # Release distribution packaging (.zip + .sha256)
+│   ├── release.sh               # End-to-end automated release cycle orchestrator
+│   └── logs.sh                  # Live unified system log streaming script
+├── dist/                        # Release distribution archives and checksums (git-ignored)
+├── CHANGELOG.md                 # Keep a Changelog & Conventional Commits changelog
+├── Makefile                     # CLI shortcuts (run, stop, install, package, release-*)
+├── DeyeMacOS.xcodeproj/         # Xcode project bundle
 │   └── project.pbxproj
 ├── DeyeMacOS/
 │   ├── App/
-│   │   ├── DeyeMacOSApp.swift   # App lifecycle, Window & MenuBarExtra
-│   │   └── AppState.swift       # ObservableObject, durum ve otomatik yenileme yönetimi
+│   │   ├── DeyeMacOSApp.swift   # App lifecycle, Window & MenuBarExtra definitions
+│   │   └── AppState.swift       # ObservableObject, state management & polling logic
 │   ├── Models/
-│   │   ├── DeyeModels.swift     # API DTO modelleri, Credentials, MenuBarDisplayMode
-│   │   └── StationSnapshot.swift# Normalize edilmiş anlık enerji modeli
+│   │   ├── DeyeModels.swift     # API DTO models, Credentials, MenuBarDisplayMode
+│   │   └── StationSnapshot.swift# Normalized real-time energy snapshot model
 │   ├── Services/
-│   │   ├── DeyeAPI.swift        # URLSession async/await istemcisi (401 auto-retry)
-│   │   ├── CredentialStore.swift# Güvenli yerel veri saklama (Android DataStore eşdeğeri)
-│   │   ├── CryptoHelper.swift   # CryptoKit SHA-256 hex
-│   │   └── Formatters.swift     # Güç (W/kW), yüzde ve zaman biçimlendiricileri
+│   │   ├── DeyeAPI.swift        # URLSession async/await client with 401 auto-retry
+│   │   ├── CredentialStore.swift# Sandboxed persistent credential store
+│   │   ├── CryptoHelper.swift   # CryptoKit SHA-256 hex utilities
+│   │   └── Formatters.swift     # Power (W/kW), percentage, and timestamp formatters
 │   ├── Views/
-│   │   ├── MainDashboardView.swift  # Büyük pencere dashboard arayüzü
-│   │   ├── MenuBarLabelView.swift   # Menü çubuğundaki canlı etiket (☀️/🔋)
-│   │   ├── MenuBarPopoverView.swift # Menü çubuğuna tıklandığında açılan popover
-│   │   ├── LoginView.swift          # İlk giriş ekranı
-│   │   ├── StationPickerView.swift  # Çoklu santral seçim ekranı
-│   │   ├── SettingsView.swift       # Ayarlar (Cmd + ,)
+│   │   ├── MainDashboardView.swift  # Expanded desktop dashboard window
+│   │   ├── MenuBarLabelView.swift   # Menu bar live status label (☀️/🔋)
+│   │   ├── MenuBarPopoverView.swift # Menu bar quick popup view
+│   │   ├── LoginView.swift          # Authentication screen
+│   │   ├── StationPickerView.swift  # Multi-station switcher modal
+│   │   ├── SettingsView.swift       # Settings & About sheet (Cmd + ,)
 │   │   └── Components/
-│   │       ├── EnergyCard.swift     # Enerji kartları bileşeni
-│   │       ├── BatterySOCView.swift # Batarya doluluk oranı çubuğu
-│   │       └── PowerFlowDiagram.swift # Canlı enerji akış diyagramı
+│   │       ├── EnergyCard.swift     # Metric status card component
+│   │       ├── BatterySOCView.swift # Battery charge bar indicator
+│   │       └── PowerFlowDiagram.swift # Dynamic animated energy flow diagram
 │   └── Resources/
-│       ├── Info.plist               # Uygulama meta bilgileri
-│       ├── DeyeMacOS.entitlements   # App Sandbox & Network Client izinleri
-│       └── Assets.xcassets/         # Uygulama ikonları ve tema renkleri
-├── Package.swift                # Swift Package Manager desteği
+│       ├── Info.plist               # App metadata (version linked to build settings)
+│       ├── DeyeMacOS.entitlements   # App Sandbox & Network Client entitlements
+│       └── Assets.xcassets/         # App icons and theme accent colors
+├── Package.swift                # Swift Package Manager manifest
 └── README.md
 ```
 
 ---
 
-## Derleme, Çalıştırma ve Kurulum
+## Build, Run, and Installation
 
-Xcode arayüzüne bağımlı kalmadan, doğrudan bu IDE / terminal içerisinden projenizi yönetebilirsiniz:
+You can build, run, and manage the project directly from the terminal without opening Xcode:
 
-### 1. Terminal / IDE Kısayolları (Make)
+### 1. Developer CLI Shortcuts (Make)
 
 ```bash
-# Debug derleyip uygulamayı arka planda başlatır (Varsayılan):
+# Show available commands (Default when running 'make'):
+make
+
+# Build Debug configuration and launch in background:
 make run
 
-# Terminal ön planında başlatıp canlı logları doğrudan görmek için:
+# Run in foreground with live console output:
 make run-fg
 
-# Çalışan Deye Solar Monitor uygulamasını durdurur:
+# Terminate running app instance:
 make stop
 
-# Sadece Debug derlemesi yapar:
+# Compile in Debug mode only:
 make build
 
-# Sadece Release (Prod) derlemesi yapar:
+# Compile in Release (Production) mode only:
 make release
 
-# Canlı sistem loglarını dinler:
+# Package distribution archive (.zip & .sha256) under dist/:
+make package
+
+# Stream live system logs:
 make logs
 
-# Derleme önbelleğini temizler:
+# Clean build artifacts (DerivedData cache):
 make clean
 ```
 
-### 2. Kendi Makinenize Kalıcı Kurulum (Prod / Release)
+### 2. Permanent macOS Installation (Production)
 
-Xcode veya terminal açmaya gerek kalmadan uygulamayı macOS'un kendi uygulamaları (`/Applications`) arasına kurup normal bir Mac uygulaması gibi kullanmak için:
+To install the app directly into your system's `/Applications` directory:
 
 ```bash
 make install
-# veya: ./scripts/install.sh --release
+# or: ./scripts/install.sh --release
 ```
 
-Bu komut:
-1. Uygulamayı en yüksek performanslı **Release (Prod)** modunda derler.
-2. Yerel macOS ad-hoc kod imzalamasını yapar ve Gatekeeper karantinasını temizler.
-3. Uygulamayı **`/Applications/Deye Solar Monitor.app`** dizinine kurar.
-4. macOS LaunchServices'e kaydeder; böylece **Spotlight (Cmd + Space)** ve **Launchpad** üzerinden hemen bulunabilir.
-5. Uygulamayı başlatır.
+This automated installation:
+1. Compiles the app in **Release (Production)** configuration.
+2. Performs local macOS ad-hoc code signing and clears Gatekeeper quarantine flags.
+3. Installs the bundle into **`/Applications/Deye Solar Monitor.app`**.
+4. Registers with macOS LaunchServices so it appears instantly in **Spotlight (Cmd + Space)** and **Launchpad**.
+5. Starts the menu bar app.
 
-> **İpucu:** Mac açıldığında otomatik başlamasını isterseniz: *Sistem Ayarları -> Genel -> Giriş Öğeleri* menüsünden `Deye Solar Monitor` uygulamasını ekleyebilirsiniz.
-
----
-
-## İlk Giriş & Yapılandırma
-
-Uygulamayı ilk açtığınızda sizi giriş ekranı karşılar:
-
-1. **App ID:** DeyeCloud Developer Portalı'ndan aldığınız App ID.
-2. **App Secret:** DeyeCloud Developer Portalı'ndan aldığınız App Secret.
-3. **E-posta / Kullanıcı Adı:** Deye mobil/web uygulamasında kullandığınız hesap.
-4. **Şifre:** Deye hesap şifreniz.
-
-Giriş yapıldıktan sonra bilgiler uygulamanın korumalı yerel alanına (`UserDefaults` - Android DataStore eşdeğeri) kaydedilir ve sonraki açılışlarda otomatik olarak oturum açılır. Gereksiz sistem şifresi istemi (Keychain prompt) oluşturmaz.
+> **Tip:** To automatically launch on system boot, go to: *System Settings ➔ General ➔ Login Items* and add `Deye Solar Monitor`.
 
 ---
 
-## Lisans
+## Initial Setup & Configuration
 
-Kişisel kullanım projesidir.
+Upon first launch, enter your DeyeCloud API developer credentials:
+
+1. **App ID:** Your App ID from the DeyeCloud Developer Portal.
+2. **App Secret:** Your App Secret from the DeyeCloud Developer Portal.
+3. **Email / Username:** Your Deye registered user account.
+4. **Password:** Your Deye account password.
+
+Credentials are saved in the app's sandboxed storage. Subsequent launches will automatically log in and begin streaming data without prompting.
+
+---
+
+## Release Management & Release Cycle
+
+The project adheres to **[Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)**, **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**, **[Keep a Changelog](https://keepachangelog.com/en/1.1.0/)**, and **GitHub Releases** standards.
+
+### Single-Command Release Orchestration
+
+Run any of the following commands to execute the full release cycle in a single automated step:
+
+```bash
+# 1. Patch Release (Bug fixes: e.g. 1.0.0 -> 1.0.1)
+make release-patch
+
+# 2. Minor Release (Backwards-compatible features: e.g. 1.0.0 -> 1.1.0)
+make release-minor
+
+# 3. Major Release (Breaking/architectural changes: e.g. 1.0.0 -> 2.0.0)
+make release-major
+
+# 4. Explicit Version Specification
+make release-publish VERSION=1.2.0
+
+# 5. Safe Simulation (Dry-Run: tests the cycle without applying changes or pushing)
+make release-dry-run
+```
+
+### What Happens During the Release Cycle?
+
+1. **Preflight Checks:** Validates clean git working tree, active `main` branch, and availability of required tools (`gh`, `xcodebuild`, `ditto`, `shasum`).
+2. **Version Bump:** Updates `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` (build number) in `DeyeMacOS.xcodeproj/project.pbxproj`.
+3. **Dynamic UI Synchronization:** The application UI dynamically reads the version string from the main bundle.
+4. **Changelog & Release Notes Generation:** Automatically parses Conventional Commits (`feat:`, `fix:`, `perf:`, `chore:`, etc.) since the previous git tag and prepends the categorized release notes to `CHANGELOG.md`.
+5. **Production Build & Artifact Packaging:**
+   - Compiles in Release mode.
+   - Archives the `.app` bundle via Apple's official `ditto -c -k --keepParent` command to preserve permissions, symlinks, and macOS metadata into `dist/Deye-Solar-Monitor-vX.Y.Z-macOS.zip`.
+   - Computes SHA-256 integrity checksum into `dist/Deye-Solar-Monitor-vX.Y.Z-macOS.zip.sha256`.
+6. **Git Commit & Tag:**
+   - Commits version bumps with `chore(release): vX.Y.Z`.
+   - Creates an annotated Git tag `vX.Y.Z`.
+7. **Git Push & GitHub Release:**
+   - Pushes commits and tags to the remote repository.
+   - Uses `gh release create` to publish the official GitHub Release with release notes, zip archive, and SHA-256 checksum asset attached.
+
+---
+
+## License
+
+Personal and private utility application. All rights reserved.

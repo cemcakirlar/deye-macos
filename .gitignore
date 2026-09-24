@@ -12,8 +12,9 @@ xcuserdata/
 .build/
 .swiftpm/
 
-# Temporary
+# Temporary & Distribution
 .tmp/
+dist/
 
 # Secrets & Credentials
 .env
