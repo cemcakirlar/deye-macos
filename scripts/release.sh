@@ -200,7 +200,7 @@ PERFS=()
 CHORES=()
 OTHERS=()
 
-while IFS='|' read -r subject hash; do
+while IFS='|' read -r subject hash || [ -n "$subject" ]; do
     [ -z "$subject" ] && continue
     case "$subject" in
         chore\(release\)*|"chore: release"*)
