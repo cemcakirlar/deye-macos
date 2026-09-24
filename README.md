@@ -151,6 +151,21 @@ This automated installation:
 
 > **Tip:** To automatically launch on system boot, go to: *System Settings ➔ General ➔ Login Items* and add `Deye Solar Monitor`.
 
+### 3. Installing from GitHub Releases (macOS Gatekeeper)
+
+When downloading the `.zip` archive via a web browser from [GitHub Releases](https://github.com/cemcakirlar/deye-macos/releases), macOS attaches a `com.apple.quarantine` attribute. Because this is an open-source community app built without an Apple Developer ID ($99/year fee), macOS displays:
+> *“Deye Solar Monitor” Not Opened — Apple could not verify “Deye Solar Monitor” is free of malware...*
+
+**To open the app immediately:**
+- **Option A (Fastest - Terminal):** Run this one-time command:
+  ```bash
+  xattr -cr "/Applications/Deye Solar Monitor.app"
+  ```
+- **Option B (macOS GUI):**
+  1. Open **System Settings** ➔ **Privacy & Security**.
+  2. Scroll down to the **Security** section.
+  3. Click **Open Anyway** next to the *"Deye Solar Monitor"* notice and confirm.
+
 ---
 
 ## Initial Setup & Configuration

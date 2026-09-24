@@ -258,6 +258,14 @@ if [ ${#OTHERS[@]} -gt 0 ]; then
     RELEASE_NOTES+="\n"
 fi
 
+# Append macOS Gatekeeper guidance for end users
+RELEASE_NOTES+="---\n\n"
+RELEASE_NOTES+="### 🍏 macOS Installation & Gatekeeper Note\n"
+RELEASE_NOTES+="Because this open-source build is distributed outside the Mac App Store without a paid Apple Developer ID, macOS Gatekeeper may show a warning (*\"Apple could not verify...\"*) on first launch.\n\n"
+RELEASE_NOTES+="**To open the app, run this single command in Terminal:**\n"
+RELEASE_NOTES+="\`\`\`bash\nxattr -cr \"/Applications/Deye Solar Monitor.app\"\n\`\`\`\n"
+RELEASE_NOTES+="*Alternatively, open **System Settings ➔ Privacy & Security** and click **Open Anyway**.* \n\n"
+
 if [ ${#FEATS[@]} -eq 0 ] && [ ${#FIXES[@]} -eq 0 ] && [ ${#PERFS[@]} -eq 0 ] && [ ${#CHORES[@]} -eq 0 ] && [ ${#OTHERS[@]} -eq 0 ]; then
     RELEASE_NOTES+="### 📦 Changes\n- Release v${NEW_VERSION} of Deye Solar Monitor.\n\n"
 fi
@@ -275,7 +283,7 @@ HEADER="# Changelog\n\nAll notable changes to the Deye Solar Monitor for macOS p
 if [ "$DRY_RUN" = false ]; then
     if [ ! -f "$CHANGELOG_FILE" ]; then
         printf "%b\n%b\n" "$HEADER" "$RELEASE_NOTES" > "$CHANGELOG_FILE"
-    else
+    elif ! grep -q "## \[v${NEW_VERSION}\]" "$CHANGELOG_FILE"; then
         BODY=$(awk 'NR>4' "$CHANGELOG_FILE" 2>/dev/null || cat "$CHANGELOG_FILE")
         printf "%b\n%b\n%s\n" "$HEADER" "$RELEASE_NOTES" "$BODY" > "$CHANGELOG_FILE"
     fi
@@ -346,7 +354,7 @@ echo -e "\n${BLUE}${BOLD}[7/7] Git Push and GitHub Release...${NC}"
 if [ "$NO_PUSH" = false ] && [ "$DRY_RUN" = false ]; then
     echo -e "${BLUE}📤 Pushing git branch and tags to origin...${NC}"
     git push origin "$CURRENT_BRANCH"
-    git push origin "$TAG_NAME"
+    git push origin "$TAG_NAME" --force
     echo -e "${GREEN}✅ Git push completed.${NC}"
 
     if command -v gh > /dev/null 2>&1; then
