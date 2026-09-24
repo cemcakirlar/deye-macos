@@ -9,21 +9,68 @@ public final class AppState: ObservableObject {
     @Published public var isLoggedIn: Bool = false
     @Published public var credentials: Credentials = Credentials(appId: "", appSecret: "", emailOrUsername: "", password: "")
     @Published public var stations: [StationItem] = []
-    @Published public var selectedStationId: Int64? = nil
-    @Published public var selectedStationName: String = ""
     @Published public var snapshot: StationSnapshot? = nil
     @Published public var stationSnapshots: [Int64: StationSnapshot] = [:]
     @Published public var isLoading: Bool = false
     @Published public var errorMessage: String? = nil
     @Published public var needsStationSelection: Bool = false
-    @Published public var refreshInterval: TimeInterval = 300 // 5 minutes default
-    @Published public var menuBarDisplayMode: MenuBarDisplayMode = .solarAndBattery
-    @Published public var gridImportThresholdW: Double = 150.0 // Grid purchase / import (+) threshold
-    @Published public var gridExportThresholdW: Double = 150.0 // Grid sell / export (-) threshold
-    @Published public var batteryChargeThresholdW: Double = 200.0 // Battery charge (-) threshold
-    @Published public var batteryDischargeThresholdW: Double = 200.0 // Battery discharge / draw (+) threshold
-    @Published public var selectedDataCenter: DeyeDataCenter = .europe // Default to Europe
-    @Published public var showMainWindowOnLaunch: Bool = false // Default false (hidden on launch)
+    @Published public var config: AppConfig
+
+    public var selectedStationId: Int64? {
+        get { config.selectedStationId }
+        set {
+            config.selectedStationId = newValue
+            config.save()
+        }
+    }
+
+    public var selectedStationName: String {
+        get { config.selectedStationName }
+        set {
+            config.selectedStationName = newValue
+            config.save()
+        }
+    }
+
+    public var refreshInterval: TimeInterval {
+        get { config.refreshInterval }
+        set { setRefreshInterval(newValue) }
+    }
+
+    public var menuBarDisplayMode: MenuBarDisplayMode {
+        get { config.menuBarDisplayMode }
+        set { setMenuBarDisplayMode(newValue) }
+    }
+
+    public var gridImportThresholdW: Double {
+        get { config.gridImportThresholdW }
+        set { setGridImportThreshold(newValue) }
+    }
+
+    public var gridExportThresholdW: Double {
+        get { config.gridExportThresholdW }
+        set { setGridExportThreshold(newValue) }
+    }
+
+    public var batteryChargeThresholdW: Double {
+        get { config.batteryChargeThresholdW }
+        set { setBatteryChargeThreshold(newValue) }
+    }
+
+    public var batteryDischargeThresholdW: Double {
+        get { config.batteryDischargeThresholdW }
+        set { setBatteryDischargeThreshold(newValue) }
+    }
+
+    public var selectedDataCenter: DeyeDataCenter {
+        get { config.selectedDataCenter }
+        set { setDataCenter(newValue) }
+    }
+
+    public var showMainWindowOnLaunch: Bool {
+        get { config.showMainWindowOnLaunch }
+        set { setShowMainWindowOnLaunch(newValue) }
+    }
 
     // MARK: - Private State
 
@@ -33,22 +80,8 @@ public final class AppState: ObservableObject {
 
     // Keys for UserDefaults
     private enum Keys {
-        static let appId = "deye_app_id"
-        static let emailOrUsername = "deye_email_or_username"
-        static let stationId = "deye_station_id"
-        static let stationName = "deye_station_name"
-        static let refreshInterval = "deye_refresh_interval"
-        static let menuBarDisplayMode = "deye_menubar_display_mode"
         static let cachedSnapshot = "deye_cached_snapshot"
         static let cachedStations = "deye_cached_stations"
-        static let selectedDataCenter = "deye_selected_datacenter"
-        static let gridImportThreshold = "deye_grid_import_threshold_w"
-        static let gridExportThreshold = "deye_grid_export_threshold_w"
-        static let batteryChargeThreshold = "deye_battery_charge_threshold_w"
-        static let batteryDischargeThreshold = "deye_battery_discharge_threshold_w"
-        static let gridPowerThreshold = "deye_grid_power_threshold_w"
-        static let batteryPowerThreshold = "deye_battery_power_threshold_w"
-        static let showMainWindowOnLaunch = "deye_show_main_window_on_launch"
     }
 
     private enum CredentialKeys {
@@ -60,6 +93,7 @@ public final class AppState: ObservableObject {
     // MARK: - Initializer
 
     public init() {
+        config = AppConfig.load()
         loadStoredConfiguration()
         setupTimer()
 
@@ -73,48 +107,22 @@ public final class AppState: ObservableObject {
     // MARK: - Persistence & Setup
 
     private func loadStoredConfiguration() {
-        let savedAppId = userDefaults.string(forKey: Keys.appId) ?? ""
-        let savedEmail = userDefaults.string(forKey: Keys.emailOrUsername) ?? ""
         let savedSecret = CredentialStore.get(key: CredentialKeys.appSecret) ?? ""
         let savedPassword = CredentialStore.get(key: CredentialKeys.password) ?? ""
         self.cachedToken = CredentialStore.get(key: CredentialKeys.accessToken)
 
         self.credentials = Credentials(
-            appId: savedAppId,
+            appId: config.appId,
             appSecret: savedSecret,
-            emailOrUsername: savedEmail,
+            emailOrUsername: config.emailOrUsername,
             password: savedPassword
         )
 
-        let stationId = userDefaults.object(forKey: Keys.stationId) as? Int64
-        self.selectedStationId = stationId
-        self.selectedStationName = userDefaults.string(forKey: Keys.stationName) ?? ""
-
-        let interval = userDefaults.double(forKey: Keys.refreshInterval)
-        if interval >= 30 {
-            self.refreshInterval = interval
-        }
-
-        if let modeRaw = userDefaults.string(forKey: Keys.menuBarDisplayMode),
-           let mode = MenuBarDisplayMode(rawValue: modeRaw) {
-            self.menuBarDisplayMode = mode
-        }
-
-        let legacyGrid = (userDefaults.object(forKey: Keys.gridPowerThreshold) as? Double) ?? (userDefaults.object(forKey: "deye_power_threshold_w") as? Double)
-        self.gridImportThresholdW = (userDefaults.object(forKey: Keys.gridImportThreshold) as? Double) ?? legacyGrid ?? 150.0
-        self.gridExportThresholdW = (userDefaults.object(forKey: Keys.gridExportThreshold) as? Double) ?? legacyGrid ?? 150.0
-
-        let legacyBattery = userDefaults.object(forKey: Keys.batteryPowerThreshold) as? Double
-        self.batteryChargeThresholdW = (userDefaults.object(forKey: Keys.batteryChargeThreshold) as? Double) ?? legacyBattery ?? 200.0
-        self.batteryDischargeThresholdW = (userDefaults.object(forKey: Keys.batteryDischargeThreshold) as? Double) ?? legacyBattery ?? 200.0
-
-        // Restore cached stations
         if let data = userDefaults.data(forKey: Keys.cachedStations),
            let cachedStations = try? JSONDecoder().decode([StationItem].self, from: data) {
             self.stations = cachedStations
         }
 
-        // Restore cached snapshot for instantaneous UI display
         if let data = userDefaults.data(forKey: Keys.cachedSnapshot),
            let cached = try? JSONDecoder().decode(StationSnapshot.self, from: data) {
             self.snapshot = cached
@@ -123,20 +131,9 @@ public final class AppState: ObservableObject {
             }
         }
 
-        self.showMainWindowOnLaunch = userDefaults.bool(forKey: Keys.showMainWindowOnLaunch)
-
-        // Restore selected data center
-        if let data = userDefaults.data(forKey: Keys.selectedDataCenter),
-           let savedCenter = try? JSONDecoder().decode(DeyeDataCenter.self, from: data) {
-            self.selectedDataCenter = savedCenter
-            Task {
-                await DeyeAPI.shared.setDataCenter(savedCenter)
-            }
-        } else {
-            self.selectedDataCenter = .europe
-            Task {
-                await DeyeAPI.shared.setDataCenter(.europe)
-            }
+        let center = config.selectedDataCenter
+        Task {
+            await DeyeAPI.shared.setDataCenter(center)
         }
 
         self.isLoggedIn = credentials.isValid
@@ -144,57 +141,56 @@ public final class AppState: ObservableObject {
 
     public func saveCredentials(_ newCredentials: Credentials) {
         self.credentials = newCredentials
-        userDefaults.set(newCredentials.appId, forKey: Keys.appId)
-        userDefaults.set(newCredentials.emailOrUsername, forKey: Keys.emailOrUsername)
+        config.appId = newCredentials.appId
+        config.emailOrUsername = newCredentials.emailOrUsername
+        config.save()
         CredentialStore.save(key: CredentialKeys.appSecret, value: newCredentials.appSecret)
         CredentialStore.save(key: CredentialKeys.password, value: newCredentials.password)
         self.isLoggedIn = newCredentials.isValid
     }
 
     public func setRefreshInterval(_ interval: TimeInterval) {
-        self.refreshInterval = interval
-        userDefaults.set(interval, forKey: Keys.refreshInterval)
+        config.refreshInterval = interval
+        config.save()
         setupTimer()
     }
 
     public func setMenuBarDisplayMode(_ mode: MenuBarDisplayMode) {
-        self.menuBarDisplayMode = mode
-        userDefaults.set(mode.rawValue, forKey: Keys.menuBarDisplayMode)
+        config.menuBarDisplayMode = mode
+        config.save()
     }
 
     public func setGridImportThreshold(_ value: Double) {
-        self.gridImportThresholdW = max(0, value)
-        userDefaults.set(self.gridImportThresholdW, forKey: Keys.gridImportThreshold)
+        config.gridImportThresholdW = max(0, value)
+        config.save()
     }
 
     public func setGridExportThreshold(_ value: Double) {
-        self.gridExportThresholdW = max(0, value)
-        userDefaults.set(self.gridExportThresholdW, forKey: Keys.gridExportThreshold)
+        config.gridExportThresholdW = max(0, value)
+        config.save()
     }
 
     public func setBatteryChargeThreshold(_ value: Double) {
-        self.batteryChargeThresholdW = max(0, value)
-        userDefaults.set(self.batteryChargeThresholdW, forKey: Keys.batteryChargeThreshold)
+        config.batteryChargeThresholdW = max(0, value)
+        config.save()
     }
 
     public func setBatteryDischargeThreshold(_ value: Double) {
-        self.batteryDischargeThresholdW = max(0, value)
-        userDefaults.set(self.batteryDischargeThresholdW, forKey: Keys.batteryDischargeThreshold)
+        config.batteryDischargeThresholdW = max(0, value)
+        config.save()
     }
 
     public func setDataCenter(_ dataCenter: DeyeDataCenter) {
-        self.selectedDataCenter = dataCenter
-        if let encoded = try? JSONEncoder().encode(dataCenter) {
-            userDefaults.set(encoded, forKey: Keys.selectedDataCenter)
-        }
+        config.selectedDataCenter = dataCenter
+        config.save()
         Task {
             await DeyeAPI.shared.setDataCenter(dataCenter)
         }
     }
 
     public func setShowMainWindowOnLaunch(_ value: Bool) {
-        self.showMainWindowOnLaunch = value
-        userDefaults.set(value, forKey: Keys.showMainWindowOnLaunch)
+        config.showMainWindowOnLaunch = value
+        config.save()
     }
 
     private func setupTimer() {
@@ -250,15 +246,10 @@ public final class AppState: ObservableObject {
         self.snapshot = nil
         self.stations = []
         self.stationSnapshots = [:]
-        self.selectedStationId = nil
-        self.selectedStationName = ""
         self.errorMessage = nil
 
         CredentialStore.clearAll()
-        userDefaults.removeObject(forKey: Keys.appId)
-        userDefaults.removeObject(forKey: Keys.emailOrUsername)
-        userDefaults.removeObject(forKey: Keys.stationId)
-        userDefaults.removeObject(forKey: Keys.stationName)
+        config.clearAccount()
         userDefaults.removeObject(forKey: Keys.cachedSnapshot)
         userDefaults.removeObject(forKey: Keys.cachedStations)
 
@@ -267,10 +258,9 @@ public final class AppState: ObservableObject {
 
     public func selectStation(_ station: StationItem) async {
         guard let id = station.resolvedId else { return }
-        self.selectedStationId = id
-        self.selectedStationName = station.displayName
-        userDefaults.set(id, forKey: Keys.stationId)
-        userDefaults.set(station.displayName, forKey: Keys.stationName)
+        config.selectedStationId = id
+        config.selectedStationName = station.displayName
+        config.save()
         self.needsStationSelection = false
 
         if let cached = stationSnapshots[id] {
@@ -301,10 +291,9 @@ public final class AppState: ObservableObject {
 
             if selectedStationId == nil || !fetchedStations.contains(where: { $0.resolvedId == selectedStationId }) {
                 if let first = fetchedStations.first, let firstId = first.resolvedId {
-                    self.selectedStationId = firstId
-                    self.selectedStationName = first.displayName
-                    userDefaults.set(firstId, forKey: Keys.stationId)
-                    userDefaults.set(first.displayName, forKey: Keys.stationName)
+                    config.selectedStationId = firstId
+                    config.selectedStationName = first.displayName
+                    config.save()
                 }
             }
 

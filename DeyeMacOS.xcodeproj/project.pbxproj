@@ -10,6 +10,7 @@
 		806F18B074DA4E2789304DD5 /* DeyeMacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE7570D38FC4840BE0E9B91 /* DeyeMacOSApp.swift */; };
 		9202EC144D084405BDFA6D58 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 737459D5AB96424387968E85 /* AppState.swift */; };
 		838C476889714DEBB4A4411B /* DeyeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE54333037D48B7A41052B6 /* DeyeModels.swift */; };
+		A7C3E91B4D2F4A6E8B1C0D11 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D4FA2C5E304B7F9C2D1E22 /* AppConfig.swift */; };
 		E1DB0088A9494306A88F00B0 /* StationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E8AD379022241E0BADFA812 /* StationSnapshot.swift */; };
 		2990BCC9CCFD4DBCAEC66650 /* DeyeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416945E9DED54BF2B31C1E8C /* DeyeAPI.swift */; };
 		5F60CDFA99084044BC3F6827 /* CredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002F056335D94250971B956C /* CredentialStore.swift */; };
@@ -32,6 +33,7 @@
 		3FE7570D38FC4840BE0E9B91 /* DeyeMacOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/App/DeyeMacOSApp.swift"; sourceTree = "<group>"; };
 		737459D5AB96424387968E85 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/App/AppState.swift"; sourceTree = "<group>"; };
 		5AE54333037D48B7A41052B6 /* DeyeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Models/DeyeModels.swift"; sourceTree = "<group>"; };
+		B8D4FA2C5E304B7F9C2D1E22 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Models/AppConfig.swift"; sourceTree = "<group>"; };
 		9E8AD379022241E0BADFA812 /* StationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Models/StationSnapshot.swift"; sourceTree = "<group>"; };
 		416945E9DED54BF2B31C1E8C /* DeyeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/DeyeAPI.swift"; sourceTree = "<group>"; };
 		002F056335D94250971B956C /* CredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/CredentialStore.swift"; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				5AE54333037D48B7A41052B6 /* DeyeModels.swift */,
+				B8D4FA2C5E304B7F9C2D1E22 /* AppConfig.swift */,
 				9E8AD379022241E0BADFA812 /* StationSnapshot.swift */,
 			);
 			name = Models;
@@ -216,6 +219,7 @@
 				806F18B074DA4E2789304DD5 /* DeyeMacOSApp.swift in Sources */,
 				9202EC144D084405BDFA6D58 /* AppState.swift in Sources */,
 				838C476889714DEBB4A4411B /* DeyeModels.swift in Sources */,
+				A7C3E91B4D2F4A6E8B1C0D11 /* AppConfig.swift in Sources */,
 				E1DB0088A9494306A88F00B0 /* StationSnapshot.swift in Sources */,
 				2990BCC9CCFD4DBCAEC66650 /* DeyeAPI.swift in Sources */,
 				5F60CDFA99084044BC3F6827 /* CredentialStore.swift in Sources */,
