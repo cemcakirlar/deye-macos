@@ -112,12 +112,14 @@ public struct MenuBarPopoverView: View {
                 }
 
                 let snapshot = appState.snapshot
-                let gridThreshold = appState.gridPowerThresholdW
-                let battThreshold = appState.batteryPowerThresholdW
-                let isCharging = snapshot?.isCharging(threshold: battThreshold) ?? false
-                let isDischarging = snapshot?.isDischarging(threshold: battThreshold) ?? false
-                let effectiveGrid = snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0
-                let effectiveBatt = snapshot?.effectiveBatteryPower(threshold: battThreshold) ?? 0
+                let gridImportTh = appState.gridImportThresholdW
+                let gridExportTh = appState.gridExportThresholdW
+                let battChargeTh = appState.batteryChargeThresholdW
+                let battDischargeTh = appState.batteryDischargeThresholdW
+                let isCharging = snapshot?.isCharging(threshold: battChargeTh) ?? false
+                let isDischarging = snapshot?.isDischarging(threshold: battDischargeTh) ?? false
+                let effectiveGrid = snapshot?.effectiveGridPower(importThreshold: gridImportTh, exportThreshold: gridExportTh) ?? 0
+                let effectiveBatt = snapshot?.effectiveBatteryPower(chargeThreshold: battChargeTh, dischargeThreshold: battDischargeTh) ?? 0
 
                 // Battery SOC Bar
                 BatterySOCView(
@@ -146,12 +148,15 @@ public struct MenuBarPopoverView: View {
                         tintColor: .purple
                     )
 
+                    let isSelling = effectiveGrid <= -gridExportTh
+                    let isBuying = effectiveGrid >= gridImportTh
+
                     EnergyCard(
                         title: "Şebeke",
                         icon: "bolt.fill",
                         valueText: Formatters.power(abs(effectiveGrid)),
-                        subtitle: effectiveGrid >= gridThreshold ? "Şebekeye Satış" : (effectiveGrid <= -gridThreshold ? "Şebekeden Alış" : "Dengeli (0 W)"),
-                        tintColor: effectiveGrid >= gridThreshold ? .green : (effectiveGrid <= -gridThreshold ? .blue : .secondary)
+                        subtitle: isSelling ? "Şebekeye Satış" : (isBuying ? "Şebekeden Alış" : "Dengeli (0 W)"),
+                        tintColor: isSelling ? .green : (isBuying ? .blue : .secondary)
                     )
 
                     EnergyCard(

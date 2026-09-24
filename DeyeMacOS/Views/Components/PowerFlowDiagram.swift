@@ -2,21 +2,35 @@ import SwiftUI
 
 public struct PowerFlowDiagram: View {
     public let snapshot: StationSnapshot?
-    public var gridThreshold: Double
-    public var batteryThreshold: Double
+    public var gridImportThreshold: Double
+    public var gridExportThreshold: Double
+    public var batteryChargeThreshold: Double
+    public var batteryDischargeThreshold: Double
 
-    public init(snapshot: StationSnapshot?, gridThreshold: Double = 150.0, batteryThreshold: Double = 200.0) {
+    public init(
+        snapshot: StationSnapshot?,
+        gridImportThreshold: Double = 150.0,
+        gridExportThreshold: Double = 150.0,
+        batteryChargeThreshold: Double = 200.0,
+        batteryDischargeThreshold: Double = 200.0
+    ) {
         self.snapshot = snapshot
-        self.gridThreshold = gridThreshold
-        self.batteryThreshold = batteryThreshold
+        self.gridImportThreshold = gridImportThreshold
+        self.gridExportThreshold = gridExportThreshold
+        self.batteryChargeThreshold = batteryChargeThreshold
+        self.batteryDischargeThreshold = batteryDischargeThreshold
     }
 
     private var pvPower: Double { snapshot?.generationPowerW ?? 0 }
     private var homePower: Double { snapshot?.consumptionPowerW ?? 0 }
-    private var effectiveGrid: Double { snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0 }
-    private var effectiveBatt: Double { snapshot?.effectiveBatteryPower(threshold: batteryThreshold) ?? 0 }
-    private var isCharging: Bool { snapshot?.isCharging(threshold: batteryThreshold) ?? false }
-    private var isDischarging: Bool { snapshot?.isDischarging(threshold: batteryThreshold) ?? false }
+    private var effectiveGrid: Double {
+        snapshot?.effectiveGridPower(importThreshold: gridImportThreshold, exportThreshold: gridExportThreshold) ?? 0
+    }
+    private var effectiveBatt: Double {
+        snapshot?.effectiveBatteryPower(chargeThreshold: batteryChargeThreshold, dischargeThreshold: batteryDischargeThreshold) ?? 0
+    }
+    private var isCharging: Bool { snapshot?.isCharging(threshold: batteryChargeThreshold) ?? false }
+    private var isDischarging: Bool { snapshot?.isDischarging(threshold: batteryDischargeThreshold) ?? false }
     private var soc: Double { snapshot?.batterySocPercent ?? 0 }
 
     public var body: some View {
@@ -36,20 +50,22 @@ public struct PowerFlowDiagram: View {
             // Middle row: Grid <--> Inverter <--> Home
             HStack(spacing: 20) {
                 // Left: Grid
+                let isSelling = effectiveGrid <= -gridExportThreshold
+                let isBuying = effectiveGrid >= gridImportThreshold
                 flowNode(
                     title: "Şebeke",
                     value: Formatters.power(abs(effectiveGrid)),
                     icon: "bolt.fill",
-                    color: effectiveGrid >= gridThreshold ? .green : (effectiveGrid <= -gridThreshold ? .blue : .secondary),
-                    statusText: effectiveGrid >= gridThreshold ? "Satış" : (effectiveGrid <= -gridThreshold ? "Alış" : "Dengeli (0 W)"),
-                    isActive: abs(effectiveGrid) >= gridThreshold
+                    color: isSelling ? .green : (isBuying ? .blue : .secondary),
+                    statusText: isSelling ? "Satış" : (isBuying ? "Alış" : "Dengeli (0 W)"),
+                    isActive: isSelling || isBuying
                 )
 
                 // Arrow Grid <-> Inverter
                 flowArrow(
-                    direction: effectiveGrid >= gridThreshold ? .left : (effectiveGrid <= -gridThreshold ? .right : .none),
-                    isActive: abs(effectiveGrid) >= gridThreshold,
-                    color: effectiveGrid >= gridThreshold ? .green : .blue
+                    direction: isSelling ? .left : (isBuying ? .right : .none),
+                    isActive: isSelling || isBuying,
+                    color: isSelling ? .green : .blue
                 )
 
                 // Center: Deye Inverter Hub

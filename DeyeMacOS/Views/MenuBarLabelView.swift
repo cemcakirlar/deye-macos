@@ -19,7 +19,7 @@ public struct MenuBarLabelView: View {
                 Text("☀️ Deye")
             }
         }
-        .id("menubar_label_\(appState.menuBarDisplayMode.rawValue)_\(appState.gridPowerThresholdW)_\(appState.batteryPowerThresholdW)_\(appState.snapshot?.fetchedAtEpochMs ?? 0)")
+        .id("menubar_label_\(appState.menuBarDisplayMode.rawValue)_\(appState.gridImportThresholdW)_\(appState.gridExportThresholdW)_\(appState.batteryChargeThresholdW)_\(appState.batteryDischargeThresholdW)_\(appState.snapshot?.fetchedAtEpochMs ?? 0)")
     }
 
     @ViewBuilder
@@ -28,11 +28,13 @@ public struct MenuBarLabelView: View {
         let soc = Formatters.percentage(snapshot.batterySocPercent)
         let home = Formatters.compactPower(snapshot.consumptionPowerW)
 
-        let gridThreshold = appState.gridPowerThresholdW
-        let battThreshold = appState.batteryPowerThresholdW
-        let effectiveGrid = snapshot.effectiveGridPower(threshold: gridThreshold)
+        let gridImportTh = appState.gridImportThresholdW
+        let gridExportTh = appState.gridExportThresholdW
+        let battChargeTh = appState.batteryChargeThresholdW
+
+        let effectiveGrid = snapshot.effectiveGridPower(importThreshold: gridImportTh, exportThreshold: gridExportTh)
         let gridText = Formatters.compactPower(abs(effectiveGrid))
-        let isCharging = snapshot.isCharging(threshold: battThreshold)
+        let isCharging = snapshot.isCharging(threshold: battChargeTh)
         let battEmoji = isCharging ? "⚡️🔋" : "🔋"
 
         switch appState.menuBarDisplayMode {
@@ -43,7 +45,9 @@ public struct MenuBarLabelView: View {
             Text("☀️ \(solar)")
 
         case .fullSummary:
-            let gridEmoji = effectiveGrid >= gridThreshold ? "⚡️↗" : (effectiveGrid <= -gridThreshold ? "⚡️↘" : "⚡️")
+            let isSelling = effectiveGrid <= -gridExportTh
+            let isBuying = effectiveGrid >= gridImportTh
+            let gridEmoji = isSelling ? "⚡️↗" : (isBuying ? "⚡️↘" : "⚡️")
             Text("☀️ \(solar)  \(battEmoji) \(soc)  🏠 \(home)  \(gridEmoji) \(gridText)")
 
         case .iconOnly:

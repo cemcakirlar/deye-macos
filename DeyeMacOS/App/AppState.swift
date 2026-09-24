@@ -18,8 +18,10 @@ public final class AppState: ObservableObject {
     @Published public var needsStationSelection: Bool = false
     @Published public var refreshInterval: TimeInterval = 300 // 5 minutes default
     @Published public var menuBarDisplayMode: MenuBarDisplayMode = .solarAndBattery
-    @Published public var gridPowerThresholdW: Double = 150.0 // Default 150W deadband filter for grid
-    @Published public var batteryPowerThresholdW: Double = 200.0 // Default 200W deadband filter for battery
+    @Published public var gridImportThresholdW: Double = 150.0 // Grid purchase / import (+) threshold
+    @Published public var gridExportThresholdW: Double = 150.0 // Grid sell / export (-) threshold
+    @Published public var batteryChargeThresholdW: Double = 200.0 // Battery charge (-) threshold
+    @Published public var batteryDischargeThresholdW: Double = 200.0 // Battery discharge / draw (+) threshold
     @Published public var showMainWindowOnLaunch: Bool = false // Default false (hidden on launch)
 
     // MARK: - Private State
@@ -38,6 +40,10 @@ public final class AppState: ObservableObject {
         static let menuBarDisplayMode = "deye_menubar_display_mode"
         static let cachedSnapshot = "deye_cached_snapshot"
         static let cachedStations = "deye_cached_stations"
+        static let gridImportThreshold = "deye_grid_import_threshold_w"
+        static let gridExportThreshold = "deye_grid_export_threshold_w"
+        static let batteryChargeThreshold = "deye_battery_charge_threshold_w"
+        static let batteryDischargeThreshold = "deye_battery_discharge_threshold_w"
         static let gridPowerThreshold = "deye_grid_power_threshold_w"
         static let batteryPowerThreshold = "deye_battery_power_threshold_w"
         static let showMainWindowOnLaunch = "deye_show_main_window_on_launch"
@@ -92,19 +98,13 @@ public final class AppState: ObservableObject {
             self.menuBarDisplayMode = mode
         }
 
-        if let savedGrid = userDefaults.object(forKey: Keys.gridPowerThreshold) as? Double {
-            self.gridPowerThresholdW = savedGrid
-        } else if let legacy = userDefaults.object(forKey: "deye_power_threshold_w") as? Double {
-            self.gridPowerThresholdW = legacy
-        } else {
-            self.gridPowerThresholdW = 150.0
-        }
+        let legacyGrid = (userDefaults.object(forKey: Keys.gridPowerThreshold) as? Double) ?? (userDefaults.object(forKey: "deye_power_threshold_w") as? Double)
+        self.gridImportThresholdW = (userDefaults.object(forKey: Keys.gridImportThreshold) as? Double) ?? legacyGrid ?? 150.0
+        self.gridExportThresholdW = (userDefaults.object(forKey: Keys.gridExportThreshold) as? Double) ?? legacyGrid ?? 150.0
 
-        if let savedBattery = userDefaults.object(forKey: Keys.batteryPowerThreshold) as? Double {
-            self.batteryPowerThresholdW = savedBattery
-        } else {
-            self.batteryPowerThresholdW = 200.0
-        }
+        let legacyBattery = userDefaults.object(forKey: Keys.batteryPowerThreshold) as? Double
+        self.batteryChargeThresholdW = (userDefaults.object(forKey: Keys.batteryChargeThreshold) as? Double) ?? legacyBattery ?? 200.0
+        self.batteryDischargeThresholdW = (userDefaults.object(forKey: Keys.batteryDischargeThreshold) as? Double) ?? legacyBattery ?? 200.0
 
         // Restore cached stations
         if let data = userDefaults.data(forKey: Keys.cachedStations),
@@ -146,14 +146,24 @@ public final class AppState: ObservableObject {
         userDefaults.set(mode.rawValue, forKey: Keys.menuBarDisplayMode)
     }
 
-    public func setGridPowerThreshold(_ value: Double) {
-        self.gridPowerThresholdW = max(0, value)
-        userDefaults.set(self.gridPowerThresholdW, forKey: Keys.gridPowerThreshold)
+    public func setGridImportThreshold(_ value: Double) {
+        self.gridImportThresholdW = max(0, value)
+        userDefaults.set(self.gridImportThresholdW, forKey: Keys.gridImportThreshold)
     }
 
-    public func setBatteryPowerThreshold(_ value: Double) {
-        self.batteryPowerThresholdW = max(0, value)
-        userDefaults.set(self.batteryPowerThresholdW, forKey: Keys.batteryPowerThreshold)
+    public func setGridExportThreshold(_ value: Double) {
+        self.gridExportThresholdW = max(0, value)
+        userDefaults.set(self.gridExportThresholdW, forKey: Keys.gridExportThreshold)
+    }
+
+    public func setBatteryChargeThreshold(_ value: Double) {
+        self.batteryChargeThresholdW = max(0, value)
+        userDefaults.set(self.batteryChargeThresholdW, forKey: Keys.batteryChargeThreshold)
+    }
+
+    public func setBatteryDischargeThreshold(_ value: Double) {
+        self.batteryDischargeThresholdW = max(0, value)
+        userDefaults.set(self.batteryDischargeThresholdW, forKey: Keys.batteryDischargeThreshold)
     }
 
     public func setShowMainWindowOnLaunch(_ value: Bool) {

@@ -189,19 +189,24 @@ public struct MainDashboardView: View {
                     HStack(alignment: .top, spacing: 20) {
                         PowerFlowDiagram(
                             snapshot: appState.snapshot,
-                            gridThreshold: appState.gridPowerThresholdW,
-                            batteryThreshold: appState.batteryPowerThresholdW
+                            gridImportThreshold: appState.gridImportThresholdW,
+                            gridExportThreshold: appState.gridExportThresholdW,
+                            batteryChargeThreshold: appState.batteryChargeThresholdW,
+                            batteryDischargeThreshold: appState.batteryDischargeThresholdW
                         )
                         .frame(maxWidth: .infinity)
 
                         VStack(spacing: 16) {
                             let snapshot = appState.snapshot
-                            let gridThreshold = appState.gridPowerThresholdW
-                            let battThreshold = appState.batteryPowerThresholdW
-                            let effectiveGrid = snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0
-                            let effectiveBatt = snapshot?.effectiveBatteryPower(threshold: battThreshold) ?? 0
-                            let isCharging = snapshot?.isCharging(threshold: battThreshold) ?? false
-                            let isDischarging = snapshot?.isDischarging(threshold: battThreshold) ?? false
+                            let gridImportTh = appState.gridImportThresholdW
+                            let gridExportTh = appState.gridExportThresholdW
+                            let battChargeTh = appState.batteryChargeThresholdW
+                            let battDischargeTh = appState.batteryDischargeThresholdW
+
+                            let effectiveGrid = snapshot?.effectiveGridPower(importThreshold: gridImportTh, exportThreshold: gridExportTh) ?? 0
+                            let effectiveBatt = snapshot?.effectiveBatteryPower(chargeThreshold: battChargeTh, dischargeThreshold: battDischargeTh) ?? 0
+                            let isCharging = snapshot?.isCharging(threshold: battChargeTh) ?? false
+                            let isDischarging = snapshot?.isDischarging(threshold: battDischargeTh) ?? false
 
                             BatterySOCView(
                                 socPercent: snapshot?.batterySocPercent,
@@ -229,12 +234,15 @@ public struct MainDashboardView: View {
                                     tintColor: .purple
                                 )
 
+                                let isSelling = effectiveGrid <= -gridExportTh
+                                let isBuying = effectiveGrid >= gridImportTh
+
                                 EnergyCard(
                                     title: "Şebeke",
                                     icon: "bolt.fill",
                                     valueText: Formatters.power(abs(effectiveGrid)),
-                                    subtitle: effectiveGrid >= gridThreshold ? "Şebekeye Satış" : (effectiveGrid <= -gridThreshold ? "Şebekeden Alış" : "Dengeli (0 W)"),
-                                    tintColor: effectiveGrid >= gridThreshold ? .green : (effectiveGrid <= -gridThreshold ? .blue : .secondary)
+                                    subtitle: isSelling ? "Şebekeye Satış" : (isBuying ? "Şebekeden Alış" : "Dengeli (0 W)"),
+                                    tintColor: isSelling ? .green : (isBuying ? .blue : .secondary)
                                 )
 
                                 EnergyCard(

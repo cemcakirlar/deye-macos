@@ -110,79 +110,57 @@ public struct SettingsView: View {
                     }
 
                     Section("Güç Eşik Değerleri (Tolerans / Deadband)") {
-                        // Grid Threshold
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Label("Şebeke Eşiği:", systemImage: "bolt.fill")
-                                    .foregroundStyle(.blue)
-                                Spacer()
-                                Text("±\(Int(appState.gridPowerThresholdW)) W")
-                                    .font(.system(.body, design: .monospaced))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.accentColor)
-
-                                Stepper("", value: Binding(
-                                    get: { appState.gridPowerThresholdW },
-                                    set: { appState.setGridPowerThreshold($0) }
-                                ), in: 0...500, step: 25)
-                                .labelsHidden()
-                            }
-
-                            HStack(spacing: 6) {
-                                Text("Hızlı Seçim:")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-
-                                ForEach([50.0, 100.0, 150.0, 200.0, 300.0], id: \.self) { val in
-                                    Button("\(Int(val)) W\(val == 150.0 ? " (Varsayılan)" : "")") {
-                                        appState.setGridPowerThreshold(val)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.mini)
-                                    .tint(appState.gridPowerThresholdW == val ? .accentColor : .secondary)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 2)
+                        thresholdRow(
+                            title: "Şebekeden Alış Eşiği (+)",
+                            icon: "bolt.fill",
+                            color: .blue,
+                            value: appState.gridImportThresholdW,
+                            onChange: { appState.setGridImportThreshold($0) },
+                            presets: [0.0, 50.0, 100.0, 150.0, 200.0, 300.0],
+                            defaultPreset: 150.0,
+                            description: "Şebekeden eve güç çekildiğinde (tüketim) bu değerin altı dengeli (0 W) sayılır."
+                        )
 
                         Divider()
 
-                        // Battery Threshold
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Label("Batarya Eşiği:", systemImage: "battery.100percent.bolt")
-                                    .foregroundStyle(.green)
-                                Spacer()
-                                Text("±\(Int(appState.batteryPowerThresholdW)) W")
-                                    .font(.system(.body, design: .monospaced))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.accentColor)
+                        thresholdRow(
+                            title: "Şebekeye Satış Eşiği (-)",
+                            icon: "bolt.fill",
+                            color: .green,
+                            value: appState.gridExportThresholdW,
+                            onChange: { appState.setGridExportThreshold($0) },
+                            presets: [0.0, 50.0, 100.0, 150.0, 200.0, 300.0],
+                            defaultPreset: 150.0,
+                            description: "Şebekeye üretim fazlası enerji basıldığında bu değerin altı dengeli (0 W) sayılır."
+                        )
 
-                                Stepper("", value: Binding(
-                                    get: { appState.batteryPowerThresholdW },
-                                    set: { appState.setBatteryPowerThreshold($0) }
-                                ), in: 0...500, step: 25)
-                                .labelsHidden()
-                            }
+                        Divider()
 
-                            HStack(spacing: 6) {
-                                Text("Hızlı Seçim:")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        thresholdRow(
+                            title: "Batarya Şarj Eşiği (-)",
+                            icon: "battery.100percent.bolt",
+                            color: .green,
+                            value: appState.batteryChargeThresholdW,
+                            onChange: { appState.setBatteryChargeThreshold($0) },
+                            presets: [0.0, 50.0, 100.0, 150.0, 200.0, 300.0],
+                            defaultPreset: 200.0,
+                            description: "Batarya şarj edilirken bu gücün altındaki değerler durağan kabul edilir."
+                        )
 
-                                ForEach([50.0, 100.0, 150.0, 200.0, 300.0], id: \.self) { val in
-                                    Button("\(Int(val)) W\(val == 200.0 ? " (Varsayılan)" : "")") {
-                                        appState.setBatteryPowerThreshold(val)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.mini)
-                                    .tint(appState.batteryPowerThresholdW == val ? .accentColor : .secondary)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 2)
+                        Divider()
 
-                        Text("Şebeke CT sensörleri (varsayılan ±150 W) ve batarya BMS sensörlerindeki (varsayılan ±200 W) küçük ölçüm sapmalarını sıfır kabul ederek durağan durumda sahte şarj ikonu veya akış oklarını filtreler.")
+                        thresholdRow(
+                            title: "Batarya Çekiş / Deşarj Eşiği (+)",
+                            icon: "arrow.up.forward",
+                            color: .orange,
+                            value: appState.batteryDischargeThresholdW,
+                            onChange: { appState.setBatteryDischargeThreshold($0) },
+                            presets: [0.0, 50.0, 100.0, 150.0, 200.0, 300.0],
+                            defaultPreset: 200.0,
+                            description: "Bataryadan eve anlık güç çekildiğinde bu gücün altı durağan kabul edilir."
+                        )
+
+                        Text("Şebeke CT pensleri ve batarya BMS sensörlerinin artı (+) ve eksi (-) yöndeki küçük ölçüm sapmalarını bağımsız filtreler. Belirlenen eşik altındaki değerler durağan / dengeli (0 W) gösterilir.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -260,15 +238,68 @@ public struct SettingsView: View {
     }
 
     @ViewBuilder
+    private func thresholdRow(
+        title: String,
+        icon: String,
+        color: Color,
+        value: Double,
+        onChange: @escaping (Double) -> Void,
+        presets: [Double],
+        defaultPreset: Double,
+        description: String
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label(title, systemImage: icon)
+                    .foregroundStyle(color)
+                    .fontWeight(.medium)
+                Spacer()
+                Text("\(Int(value)) W")
+                    .font(.system(.body, design: .monospaced))
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.accentColor)
+
+                Stepper("", value: Binding(
+                    get: { value },
+                    set: { onChange($0) }
+                ), in: 0...1000, step: 25)
+                .labelsHidden()
+            }
+
+            Text(description)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 6) {
+                Text("Hızlı:")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                ForEach(presets, id: \.self) { val in
+                    Button("\(Int(val)) W\(val == defaultPreset ? " (Varsayılan)" : "")") {
+                        onChange(val)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+                    .tint(value == val ? .accentColor : .secondary)
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    @ViewBuilder
     private func previewLabel(for mode: MenuBarDisplayMode) -> some View {
         let solar = Formatters.compactPower(appState.snapshot?.generationPowerW ?? 2450)
         let soc = Formatters.percentage(appState.snapshot?.batterySocPercent ?? 85)
         let home = Formatters.compactPower(appState.snapshot?.consumptionPowerW ?? 650)
-        let gridThreshold = appState.gridPowerThresholdW
-        let battThreshold = appState.batteryPowerThresholdW
-        let effectiveGrid = appState.snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0
+        let gridImportTh = appState.gridImportThresholdW
+        let gridExportTh = appState.gridExportThresholdW
+        let battChargeTh = appState.batteryChargeThresholdW
+
+        let effectiveGrid = appState.snapshot?.effectiveGridPower(importThreshold: gridImportTh, exportThreshold: gridExportTh) ?? 0
         let grid = Formatters.compactPower(abs(effectiveGrid))
-        let isCharging = appState.snapshot?.isCharging(threshold: battThreshold) ?? false
+        let isCharging = appState.snapshot?.isCharging(threshold: battChargeTh) ?? false
         let battEmoji = isCharging ? "⚡️🔋" : "🔋"
 
         switch mode {
@@ -277,7 +308,9 @@ public struct SettingsView: View {
         case .solarOnly:
             Text("☀️ \(solar)")
         case .fullSummary:
-            let gridEmoji = effectiveGrid >= gridThreshold ? "⚡️↗" : (effectiveGrid <= -gridThreshold ? "⚡️↘" : "⚡️")
+            let isSelling = effectiveGrid <= -gridExportTh
+            let isBuying = effectiveGrid >= gridImportTh
+            let gridEmoji = isSelling ? "⚡️↗" : (isBuying ? "⚡️↘" : "⚡️")
             Text("☀️ \(solar)  \(battEmoji) \(soc)  🏠 \(home)  \(gridEmoji) \(grid)")
         case .iconOnly:
             Text("☀️")
