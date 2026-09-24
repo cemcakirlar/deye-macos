@@ -8,6 +8,7 @@ public final class WindowManager: NSObject, NSWindowDelegate {
     public weak var mainWindow: NSWindow?
     public weak var appState: AppState?
     public var isTerminating: Bool = false
+    public var isExplicitlyOpened: Bool = false
 
     private var hasAppliedStartupVisibility: Bool = false
     private let delegateProxy = MainWindowDelegateProxy()
@@ -34,18 +35,27 @@ public final class WindowManager: NSObject, NSWindowDelegate {
         hasAppliedStartupVisibility = true
 
         guard appState.showMainWindowOnLaunch == false else { return }
+
+        // Start invisible to prevent any flicker while SwiftUI performs initial presentation
         window.alphaValue = 0
-        window.orderOut(nil)
-        window.alphaValue = 1
+        DispatchQueue.main.async { [weak self, weak window] in
+            guard let self, let window else { return }
+            if !self.isExplicitlyOpened {
+                window.orderOut(nil)
+            }
+            window.alphaValue = 1
+        }
     }
 
     public func showMainWindow() {
+        isExplicitlyOpened = true
         let window = resolvedMainWindow()
         if let window {
             mainWindow = window
             if window.isMiniaturized {
                 window.deminiaturize(nil)
             }
+            window.alphaValue = 1
             window.makeKeyAndOrderFront(nil)
             window.orderFrontRegardless()
         }
