@@ -180,6 +180,12 @@ echo -e "   New Version     : ${GREEN}${BOLD}v${NEW_VERSION} (Build ${NEW_BUILD}
 echo -e "\n${BLUE}${BOLD}[3/7] Parsing Conventional Commits & Generating Changelog...${NC}"
 
 PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+# If re-releasing the current tag, find the tag before it
+if [ "$PREV_TAG" = "v${NEW_VERSION}" ]; then
+    PREV_TAG=$(git describe --tags --abbrev=0 "v${NEW_VERSION}^" 2>/dev/null || echo "")
+fi
+
 LOG_RANGE="HEAD"
 if [ -n "$PREV_TAG" ]; then
     LOG_RANGE="${PREV_TAG}..HEAD"
