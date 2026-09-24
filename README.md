@@ -41,9 +41,9 @@ DeyeCloud Open API (EU veri merkezi) ile entegre çalışır; anlık üretim, t�
 |---|---|
 | **Dil** | Swift 6 (Strict Concurrency Safe) |
 | **Arayüz (UI)** | SwiftUI (macOS 14.0+) |
-| **Bileşenler** | MenuBarExtra (.window), WindowGroup, SF Symbols |
+| **Bileşenler** | MenuBarExtra (.window), Window, SF Symbols |
 | **Ağ & İstemci** | URLSession (async/await), Codable JSON |
-| **Şifreleme & Hash** | CryptoKit (SHA-256), Security.framework (Keychain Services) |
+| **Şifreleme & Depolama** | CryptoKit (SHA-256), App Sandbox Korumalı Depolama (UserDefaults) |
 | **Derleme Araçları** | Xcode Projesi (`DeyeMacOS.xcodeproj`) & Swift Package Manager (`Package.swift`) |
 
 ---

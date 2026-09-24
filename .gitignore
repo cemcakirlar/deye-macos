@@ -14,3 +14,13 @@ xcuserdata/
 
 # Temporary
 .tmp/
+
+# Secrets & Credentials
+.env
+.env.*
+*.secret
+*.key
+*.pem
+*.p12
+*.cer
+*.mobileprovision

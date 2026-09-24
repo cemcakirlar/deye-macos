@@ -147,7 +147,7 @@ public struct LoginView: View {
                 Image(systemName: "lock.shield.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("Kimlik bilgileriniz Apple Keychain içinde donanım seviyesinde şifrelenerek saklanır.")
+                Text("Kimlik bilgileriniz cihazınızda uygulamanın korumalı yerel alanında (App Sandbox) saklanır.")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
