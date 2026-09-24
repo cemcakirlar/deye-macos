@@ -18,9 +18,11 @@ public struct MainDashboardView: View {
             }
         }
         .frame(minWidth: 720, minHeight: 520)
-        .onAppear {
-            AppDelegate.handleInitialWindowVisibility()
-        }
+        .background(
+            WindowAccessor { window in
+                WindowManager.shared.register(window: window, appState: appState)
+            }
+        )
         .sheet(isPresented: $appState.needsStationSelection) {
             StationPickerView(appState: appState)
         }

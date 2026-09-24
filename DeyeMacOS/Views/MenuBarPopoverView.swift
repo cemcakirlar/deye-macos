@@ -182,8 +182,8 @@ public struct MenuBarPopoverView: View {
                 if appState.stations.count > 1 {
                     Text("·").foregroundStyle(.secondary)
                     Button("İstasyon Değiştir") {
-                        appState.needsStationSelection = true
                         openMainWindow()
+                        appState.needsStationSelection = true
                     }
                     .buttonStyle(.link)
                     .font(.caption)
@@ -204,14 +204,9 @@ public struct MenuBarPopoverView: View {
     }
 
     private func openMainWindow() {
-        openWindow(id: "main")
-        NSApp.activate(ignoringOtherApps: true)
-        for window in NSApp.windows where window.identifier?.rawValue == "main" || window.title.contains("Deye Solar") {
-            if window.isMiniaturized {
-                window.deminiaturize(nil)
-            }
-            window.makeKeyAndOrderFront(nil)
-            window.orderFrontRegardless()
+        if WindowManager.shared.mainWindow == nil {
+            openWindow(id: "main")
         }
+        WindowManager.shared.showMainWindow()
     }
 }

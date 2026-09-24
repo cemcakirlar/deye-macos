@@ -16,6 +16,7 @@
 		5F60CDFA99084044BC3F6827 /* CredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002F056335D94250971B956C /* CredentialStore.swift */; };
 		A9B30CC9806B49DE9DDB1473 /* CryptoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B49755A8DC4164881994DC /* CryptoHelper.swift */; };
 		C91CD1170A8D4FFC80AB8ADF /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A7B2874AD04C8D8DDE3335 /* Formatters.swift */; };
+		7E4A91C2B8D64F0E9A1C3D55 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5B02D3C9E7501FAB2D4E66 /* WindowManager.swift */; };
 		36BBCF52C3EC4E9EA6EE1510 /* EnergyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D761E5D34D574AB684A5CBC5 /* EnergyCard.swift */; };
 		26CC8F7026B2495B8117EACB /* BatterySOCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05605A0775DB4318924CE020 /* BatterySOCView.swift */; };
 		0F11F46F2DFD4F3882FF9F41 /* PowerFlowDiagram.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB752272E9F94B1393AF4060 /* PowerFlowDiagram.swift */; };
@@ -39,6 +40,7 @@
 		002F056335D94250971B956C /* CredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/CredentialStore.swift"; sourceTree = "<group>"; };
 		65B49755A8DC4164881994DC /* CryptoHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/CryptoHelper.swift"; sourceTree = "<group>"; };
 		84A7B2874AD04C8D8DDE3335 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/Formatters.swift"; sourceTree = "<group>"; };
+		8F5B02D3C9E7501FAB2D4E66 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/WindowManager.swift"; sourceTree = "<group>"; };
 		D761E5D34D574AB684A5CBC5 /* EnergyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/Components/EnergyCard.swift"; sourceTree = "<group>"; };
 		05605A0775DB4318924CE020 /* BatterySOCView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/Components/BatterySOCView.swift"; sourceTree = "<group>"; };
 		FB752272E9F94B1393AF4060 /* PowerFlowDiagram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/Components/PowerFlowDiagram.swift"; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 				002F056335D94250971B956C /* CredentialStore.swift */,
 				65B49755A8DC4164881994DC /* CryptoHelper.swift */,
 				84A7B2874AD04C8D8DDE3335 /* Formatters.swift */,
+				8F5B02D3C9E7501FAB2D4E66 /* WindowManager.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -225,6 +228,7 @@
 				5F60CDFA99084044BC3F6827 /* CredentialStore.swift in Sources */,
 				A9B30CC9806B49DE9DDB1473 /* CryptoHelper.swift in Sources */,
 				C91CD1170A8D4FFC80AB8ADF /* Formatters.swift in Sources */,
+				7E4A91C2B8D64F0E9A1C3D55 /* WindowManager.swift in Sources */,
 				36BBCF52C3EC4E9EA6EE1510 /* EnergyCard.swift in Sources */,
 				26CC8F7026B2495B8117EACB /* BatterySOCView.swift in Sources */,
 				0F11F46F2DFD4F3882FF9F41 /* PowerFlowDiagram.swift in Sources */,

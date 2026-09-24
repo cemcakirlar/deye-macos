@@ -3,26 +3,18 @@ import AppKit
 
 @MainActor
 public final class AppDelegate: NSObject, NSApplicationDelegate {
-    public static var hasHandledAppLaunch: Bool = false
-
-    public func applicationDidFinishLaunching(_ notification: Notification) {
-        Self.handleInitialWindowVisibility()
+    public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        WindowManager.shared.showMainWindow()
+        return true
     }
 
-    public static func handleInitialWindowVisibility() {
-        guard !hasHandledAppLaunch else { return }
-        hasHandledAppLaunch = true
+    public func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        WindowManager.shared.isTerminating = true
+        return .terminateNow
+    }
 
-        let showOnLaunch = UserDefaults.standard.bool(forKey: "deye_show_main_window_on_launch")
-        if !showOnLaunch {
-            DispatchQueue.main.async {
-                for window in NSApplication.shared.windows {
-                    if window.identifier?.rawValue == "main" || window.title.contains("Deye Solar") {
-                        window.close()
-                    }
-                }
-            }
-        }
+    public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
     }
 }
 
