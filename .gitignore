@@ -25,3 +25,9 @@ dist/
 *.p12
 *.cer
 *.mobileprovision
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*~
