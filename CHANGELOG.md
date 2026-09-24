@@ -3,6 +3,25 @@
 All notable changes to the Deye Solar Monitor for macOS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.1] - 2026-09-24
+
+### 🚀 Features
+- feat: allow user-selected and custom Deye data centers at login (`ec79c29`)
+- feat: add directional power thresholds and fix grid import/export sign convention (`3f62ec7`)
+
+---
+
+### 🍏 macOS Installation & Gatekeeper Note
+Because this open-source build is distributed outside the Mac App Store without a paid Apple Developer ID, macOS Gatekeeper may show a warning (*"Apple could not verify..."*) on first launch.
+
+**To open the app, run this single command in Terminal:**
+```bash
+xattr -cr "/Applications/Deye Solar Monitor.app"
+```
+*Alternatively, open **System Settings ➔ Privacy & Security** and click **Open Anyway**.* 
+
+
+
 ## [v1.0.0] - 2026-09-24
 
 ### 🚀 Features
