@@ -53,6 +53,17 @@ public struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
 
+                    Section("Başlangıç Davranışı") {
+                        Toggle("Uygulama açıldığında ana pencereyi göster", isOn: Binding(
+                            get: { appState.showMainWindowOnLaunch },
+                            set: { appState.setShowMainWindowOnLaunch($0) }
+                        ))
+
+                        Text("Kapalıyken (varsayılan), uygulama ilk çalıştığında ana pencere gizli kalır ve doğrudan menü çubuğunda sessizce başlar. İhtiyaç duyduğunuzda menü çubuğundaki 'Ana Pencere' butonundan açabilirsiniz.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
                     Section("Menü Çubuğu (Status Bar)") {
                         Picker("Görünüm Şekli:", selection: Binding(
                             get: { appState.menuBarDisplayMode },
@@ -239,7 +250,7 @@ public struct SettingsView: View {
             .padding(.vertical, 12)
             .background(Color(nsColor: .windowBackgroundColor))
         }
-        .frame(width: 550, height: 690)
+        .frame(width: 550, height: 750)
     }
 
     @ViewBuilder

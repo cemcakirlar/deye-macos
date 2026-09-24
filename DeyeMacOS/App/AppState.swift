@@ -20,6 +20,7 @@ public final class AppState: ObservableObject {
     @Published public var menuBarDisplayMode: MenuBarDisplayMode = .solarAndBattery
     @Published public var gridPowerThresholdW: Double = 150.0 // Default 150W deadband filter for grid
     @Published public var batteryPowerThresholdW: Double = 200.0 // Default 200W deadband filter for battery
+    @Published public var showMainWindowOnLaunch: Bool = false // Default false (hidden on launch)
 
     // MARK: - Private State
 
@@ -39,6 +40,7 @@ public final class AppState: ObservableObject {
         static let cachedStations = "deye_cached_stations"
         static let gridPowerThreshold = "deye_grid_power_threshold_w"
         static let batteryPowerThreshold = "deye_battery_power_threshold_w"
+        static let showMainWindowOnLaunch = "deye_show_main_window_on_launch"
     }
 
     private enum CredentialKeys {
@@ -119,6 +121,8 @@ public final class AppState: ObservableObject {
             }
         }
 
+        self.showMainWindowOnLaunch = userDefaults.bool(forKey: Keys.showMainWindowOnLaunch)
+
         self.isLoggedIn = credentials.isValid
     }
 
@@ -150,6 +154,11 @@ public final class AppState: ObservableObject {
     public func setBatteryPowerThreshold(_ value: Double) {
         self.batteryPowerThresholdW = max(0, value)
         userDefaults.set(self.batteryPowerThresholdW, forKey: Keys.batteryPowerThreshold)
+    }
+
+    public func setShowMainWindowOnLaunch(_ value: Bool) {
+        self.showMainWindowOnLaunch = value
+        userDefaults.set(value, forKey: Keys.showMainWindowOnLaunch)
     }
 
     private func setupTimer() {
