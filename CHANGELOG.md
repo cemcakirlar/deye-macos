@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [v1.0.0] - 2026-09-24
 
 ### 🚀 Features
+- **license**: Open-sourced under the MIT License (`6e48380`)
 - **app**: Initial release of Deye Solar Monitor native macOS menu bar application (`67b9bab`)
 - **auth & storage**: Apple sandbox-secured CredentialStore with persistent session management (`410e83e`)
 - **station switcher**: Multi-station discovery and quick switcher interface (`410e83e`)

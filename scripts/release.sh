@@ -203,6 +203,10 @@ OTHERS=()
 while IFS='|' read -r subject hash; do
     [ -z "$subject" ] && continue
     case "$subject" in
+        chore\(release\)*|"chore: release"*)
+            # Skip automated release commits
+            continue
+            ;;
         feat*|Feat*)
             FEATS+=("- ${subject} (\`${hash}\`)")
             ;;
