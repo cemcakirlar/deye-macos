@@ -1,0 +1,362 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		806F18B074DA4E2789304DD5 /* DeyeMacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE7570D38FC4840BE0E9B91 /* DeyeMacOSApp.swift */; };
+		9202EC144D084405BDFA6D58 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 737459D5AB96424387968E85 /* AppState.swift */; };
+		838C476889714DEBB4A4411B /* DeyeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE54333037D48B7A41052B6 /* DeyeModels.swift */; };
+		E1DB0088A9494306A88F00B0 /* StationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E8AD379022241E0BADFA812 /* StationSnapshot.swift */; };
+		2990BCC9CCFD4DBCAEC66650 /* DeyeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416945E9DED54BF2B31C1E8C /* DeyeAPI.swift */; };
+		5F60CDFA99084044BC3F6827 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002F056335D94250971B956C /* KeychainService.swift */; };
+		A9B30CC9806B49DE9DDB1473 /* CryptoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B49755A8DC4164881994DC /* CryptoHelper.swift */; };
+		C91CD1170A8D4FFC80AB8ADF /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A7B2874AD04C8D8DDE3335 /* Formatters.swift */; };
+		36BBCF52C3EC4E9EA6EE1510 /* EnergyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D761E5D34D574AB684A5CBC5 /* EnergyCard.swift */; };
+		26CC8F7026B2495B8117EACB /* BatterySOCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05605A0775DB4318924CE020 /* BatterySOCView.swift */; };
+		0F11F46F2DFD4F3882FF9F41 /* PowerFlowDiagram.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB752272E9F94B1393AF4060 /* PowerFlowDiagram.swift */; };
+		43C74E33CAF54C5084F54B7C /* MainDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F64878E1A4964115951A2EA4 /* MainDashboardView.swift */; };
+		E30337A5187048D1898CD35B /* MenuBarLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C2EA3098D64008BBB1E3FC /* MenuBarLabelView.swift */; };
+		EE347DA4535747659500FD91 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2255BB7151246C0BA4D67A1 /* MenuBarPopoverView.swift */; };
+		EE58BFC4B59A4443A5E7A4A6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB34507EF42F4B4D9FE77A1F /* LoginView.swift */; };
+		7D8287AA6BCF4FF792BB47F1 /* StationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6C3AAB13854047B88FAE8F /* StationPickerView.swift */; };
+		D6EE43DC3B124A82BAD2F57D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FA0A73ED444EBC91A706EE /* SettingsView.swift */; };
+		1CDECC4FBAB444CFB38A5F5B /* Assets.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = D747589780954B8485DCE4FC /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7C241E1287D44EADBB7DB3A9 /* DeyeMacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DeyeMacOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3FE7570D38FC4840BE0E9B91 /* DeyeMacOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/App/DeyeMacOSApp.swift"; sourceTree = "<group>"; };
+		737459D5AB96424387968E85 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/App/AppState.swift"; sourceTree = "<group>"; };
+		5AE54333037D48B7A41052B6 /* DeyeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Models/DeyeModels.swift"; sourceTree = "<group>"; };
+		9E8AD379022241E0BADFA812 /* StationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Models/StationSnapshot.swift"; sourceTree = "<group>"; };
+		416945E9DED54BF2B31C1E8C /* DeyeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/DeyeAPI.swift"; sourceTree = "<group>"; };
+		002F056335D94250971B956C /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/KeychainService.swift"; sourceTree = "<group>"; };
+		65B49755A8DC4164881994DC /* CryptoHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/CryptoHelper.swift"; sourceTree = "<group>"; };
+		84A7B2874AD04C8D8DDE3335 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Services/Formatters.swift"; sourceTree = "<group>"; };
+		D761E5D34D574AB684A5CBC5 /* EnergyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/Components/EnergyCard.swift"; sourceTree = "<group>"; };
+		05605A0775DB4318924CE020 /* BatterySOCView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/Components/BatterySOCView.swift"; sourceTree = "<group>"; };
+		FB752272E9F94B1393AF4060 /* PowerFlowDiagram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/Components/PowerFlowDiagram.swift"; sourceTree = "<group>"; };
+		F64878E1A4964115951A2EA4 /* MainDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/MainDashboardView.swift"; sourceTree = "<group>"; };
+		A1C2EA3098D64008BBB1E3FC /* MenuBarLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/MenuBarLabelView.swift"; sourceTree = "<group>"; };
+		B2255BB7151246C0BA4D67A1 /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/MenuBarPopoverView.swift"; sourceTree = "<group>"; };
+		EB34507EF42F4B4D9FE77A1F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/LoginView.swift"; sourceTree = "<group>"; };
+		9B6C3AAB13854047B88FAE8F /* StationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/StationPickerView.swift"; sourceTree = "<group>"; };
+		B3FA0A73ED444EBC91A706EE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeyeMacOS/Views/SettingsView.swift"; sourceTree = "<group>"; };
+		D747589780954B8485DCE4FC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "DeyeMacOS/Resources/Assets.xcassets"; sourceTree = "<group>"; };
+		D17C7BC8602847D09332F5A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DeyeMacOS/Resources/Info.plist"; sourceTree = "<group>"; };
+		0D91B1F355A7458C8E6E7CFC /* DeyeMacOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "DeyeMacOS/Resources/DeyeMacOS.entitlements"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D7382D9BD7540F9A8271831 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC8898682EBA492DA2EA14C7 = {
+			isa = PBXGroup;
+			children = (
+				E40E7FDD78AE4499986E2C5A /* App */,
+				D43901B48156465F8BF02155 /* Models */,
+				0904323A43C6404AB03B3F93 /* Services */,
+				4CF2D38399174233A3698432 /* Views */,
+				3EDE87F2B9A7426BB5402D8A /* Resources */,
+				C1743FE6A4EC44A9AFDA39CF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C1743FE6A4EC44A9AFDA39CF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7C241E1287D44EADBB7DB3A9 /* DeyeMacOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E40E7FDD78AE4499986E2C5A /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3FE7570D38FC4840BE0E9B91 /* DeyeMacOSApp.swift */,
+				737459D5AB96424387968E85 /* AppState.swift */,
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
+		D43901B48156465F8BF02155 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5AE54333037D48B7A41052B6 /* DeyeModels.swift */,
+				9E8AD379022241E0BADFA812 /* StationSnapshot.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		0904323A43C6404AB03B3F93 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				416945E9DED54BF2B31C1E8C /* DeyeAPI.swift */,
+				002F056335D94250971B956C /* KeychainService.swift */,
+				65B49755A8DC4164881994DC /* CryptoHelper.swift */,
+				84A7B2874AD04C8D8DDE3335 /* Formatters.swift */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		4CF2D38399174233A3698432 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D5DD8B9AFB5D414984262845 /* Components */,
+				F64878E1A4964115951A2EA4 /* MainDashboardView.swift */,
+				A1C2EA3098D64008BBB1E3FC /* MenuBarLabelView.swift */,
+				B2255BB7151246C0BA4D67A1 /* MenuBarPopoverView.swift */,
+				EB34507EF42F4B4D9FE77A1F /* LoginView.swift */,
+				9B6C3AAB13854047B88FAE8F /* StationPickerView.swift */,
+				B3FA0A73ED444EBC91A706EE /* SettingsView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		D5DD8B9AFB5D414984262845 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				D761E5D34D574AB684A5CBC5 /* EnergyCard.swift */,
+				05605A0775DB4318924CE020 /* BatterySOCView.swift */,
+				FB752272E9F94B1393AF4060 /* PowerFlowDiagram.swift */,
+			);
+			name = Components;
+			sourceTree = "<group>";
+		};
+		3EDE87F2B9A7426BB5402D8A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D747589780954B8485DCE4FC /* Assets.xcassets */,
+				D17C7BC8602847D09332F5A7 /* Info.plist */,
+				0D91B1F355A7458C8E6E7CFC /* DeyeMacOS.entitlements */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2E2B0DCDDFDA44A19EB1BB6D /* DeyeMacOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A122565CA3284765B4E31E35 /* Build configuration list for PBXNativeTarget "DeyeMacOS" */;
+			buildPhases = (
+				76B20DE382A54C6F84BA9FB0 /* Sources */,
+				8D7382D9BD7540F9A8271831 /* Frameworks */,
+				3775FE4DF4704B8BA6FC2A27 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DeyeMacOS;
+			productName = DeyeMacOS;
+			productReference = 7C241E1287D44EADBB7DB3A9 /* DeyeMacOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2D8351DF54644F3F9F0396B3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					2E2B0DCDDFDA44A19EB1BB6D = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 1FDAA74D501C4F2FA5603412 /* Build configuration list for PBXProject "DeyeMacOS" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC8898682EBA492DA2EA14C7;
+			productRefGroup = C1743FE6A4EC44A9AFDA39CF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2E2B0DCDDFDA44A19EB1BB6D /* DeyeMacOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3775FE4DF4704B8BA6FC2A27 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CDECC4FBAB444CFB38A5F5B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		76B20DE382A54C6F84BA9FB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				806F18B074DA4E2789304DD5 /* DeyeMacOSApp.swift in Sources */,
+				9202EC144D084405BDFA6D58 /* AppState.swift in Sources */,
+				838C476889714DEBB4A4411B /* DeyeModels.swift in Sources */,
+				E1DB0088A9494306A88F00B0 /* StationSnapshot.swift in Sources */,
+				2990BCC9CCFD4DBCAEC66650 /* DeyeAPI.swift in Sources */,
+				5F60CDFA99084044BC3F6827 /* KeychainService.swift in Sources */,
+				A9B30CC9806B49DE9DDB1473 /* CryptoHelper.swift in Sources */,
+				C91CD1170A8D4FFC80AB8ADF /* Formatters.swift in Sources */,
+				36BBCF52C3EC4E9EA6EE1510 /* EnergyCard.swift in Sources */,
+				26CC8F7026B2495B8117EACB /* BatterySOCView.swift in Sources */,
+				0F11F46F2DFD4F3882FF9F41 /* PowerFlowDiagram.swift in Sources */,
+				43C74E33CAF54C5084F54B7C /* MainDashboardView.swift in Sources */,
+				E30337A5187048D1898CD35B /* MenuBarLabelView.swift in Sources */,
+				EE347DA4535747659500FD91 /* MenuBarPopoverView.swift in Sources */,
+				EE58BFC4B59A4443A5E7A4A6 /* LoginView.swift in Sources */,
+				7D8287AA6BCF4FF792BB47F1 /* StationPickerView.swift in Sources */,
+				D6EE43DC3B124A82BAD2F57D /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5308C91566C840B1AC5B22C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		430CC892F6C04A17A7A47237 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		1E30C5B306524E189B70F713 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "DeyeMacOS/Resources/DeyeMacOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "DeyeMacOS/Resources/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.deye.DeyeMacOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D6A54A30DFA645DDA2B9D19D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "DeyeMacOS/Resources/DeyeMacOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "DeyeMacOS/Resources/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.deye.DeyeMacOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1FDAA74D501C4F2FA5603412 /* Build configuration list for PBXProject "DeyeMacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5308C91566C840B1AC5B22C6 /* Debug */,
+				430CC892F6C04A17A7A47237 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A122565CA3284765B4E31E35 /* Build configuration list for PBXNativeTarget "DeyeMacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E30C5B306524E189B70F713 /* Debug */,
+				D6A54A30DFA645DDA2B9D19D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 2D8351DF54644F3F9F0396B3 /* Project object */;
+}
