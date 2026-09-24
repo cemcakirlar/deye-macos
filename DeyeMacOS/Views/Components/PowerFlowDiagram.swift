@@ -2,15 +2,21 @@ import SwiftUI
 
 public struct PowerFlowDiagram: View {
     public let snapshot: StationSnapshot?
+    public var gridThreshold: Double
+    public var batteryThreshold: Double
 
-    public init(snapshot: StationSnapshot?) {
+    public init(snapshot: StationSnapshot?, gridThreshold: Double = 150.0, batteryThreshold: Double = 200.0) {
         self.snapshot = snapshot
+        self.gridThreshold = gridThreshold
+        self.batteryThreshold = batteryThreshold
     }
 
     private var pvPower: Double { snapshot?.generationPowerW ?? 0 }
     private var homePower: Double { snapshot?.consumptionPowerW ?? 0 }
-    private var gridPower: Double { snapshot?.wirePowerW ?? 0 }
-    private var battPower: Double { snapshot?.batteryPowerW ?? 0 }
+    private var effectiveGrid: Double { snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0 }
+    private var effectiveBatt: Double { snapshot?.effectiveBatteryPower(threshold: batteryThreshold) ?? 0 }
+    private var isCharging: Bool { snapshot?.isCharging(threshold: batteryThreshold) ?? false }
+    private var isDischarging: Bool { snapshot?.isDischarging(threshold: batteryThreshold) ?? false }
     private var soc: Double { snapshot?.batterySocPercent ?? 0 }
 
     public var body: some View {
@@ -32,18 +38,18 @@ public struct PowerFlowDiagram: View {
                 // Left: Grid
                 flowNode(
                     title: "Şebeke",
-                    value: Formatters.power(abs(gridPower)),
+                    value: Formatters.power(abs(effectiveGrid)),
                     icon: "bolt.fill",
-                    color: gridPower > 0 ? .green : .blue,
-                    statusText: gridPower > 20 ? "Satış" : (gridPower < -20 ? "Alış" : "Dengeli"),
-                    isActive: abs(gridPower) > 20
+                    color: effectiveGrid >= gridThreshold ? .green : (effectiveGrid <= -gridThreshold ? .blue : .secondary),
+                    statusText: effectiveGrid >= gridThreshold ? "Satış" : (effectiveGrid <= -gridThreshold ? "Alış" : "Dengeli (0 W)"),
+                    isActive: abs(effectiveGrid) >= gridThreshold
                 )
 
                 // Arrow Grid <-> Inverter
                 flowArrow(
-                    direction: gridPower > 20 ? .left : .right,
-                    isActive: abs(gridPower) > 20,
-                    color: gridPower > 0 ? .green : .blue
+                    direction: effectiveGrid >= gridThreshold ? .left : (effectiveGrid <= -gridThreshold ? .right : .none),
+                    isActive: abs(effectiveGrid) >= gridThreshold,
+                    color: effectiveGrid >= gridThreshold ? .green : .blue
                 )
 
                 // Center: Deye Inverter Hub
@@ -83,19 +89,19 @@ public struct PowerFlowDiagram: View {
 
             // Connection Arrow Inverter <-> Battery
             flowArrow(
-                direction: battPower < -10 ? .down : (battPower > 10 ? .up : .none),
-                isActive: abs(battPower) > 10,
-                color: battPower < -10 ? .green : .orange
+                direction: isCharging ? .down : (isDischarging ? .up : .none),
+                isActive: isCharging || isDischarging,
+                color: isCharging ? .green : .orange
             )
 
             // Bottom: Battery
             flowNode(
                 title: "Batarya",
-                value: "\(Formatters.power(abs(battPower))) (\(Formatters.percentage(soc)))",
-                icon: battPower < -10 ? "battery.100percent.bolt" : "battery.75percent",
+                value: (isCharging || isDischarging) ? "\(Formatters.power(abs(effectiveBatt))) (\(Formatters.percentage(soc)))" : "Durağan (\(Formatters.percentage(soc)))",
+                icon: isCharging ? "battery.100percent.bolt" : "battery.75percent",
                 color: soc > 50 ? .green : (soc > 20 ? .orange : .red),
-                statusText: battPower < -10 ? "Şarj" : (battPower > 10 ? "Deşarj" : "Beklemede"),
-                isActive: abs(battPower) > 10
+                statusText: isCharging ? "Şarj" : (isDischarging ? "Deşarj" : "Beklemede"),
+                isActive: isCharging || isDischarging
             )
         }
         .padding(20)

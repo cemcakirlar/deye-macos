@@ -55,27 +55,52 @@ public struct StationSnapshot: Codable, Equatable, Sendable {
         return Date(timeIntervalSince1970: Double(ms) / 1000.0)
     }
 
-    /// Battery state: Charging, Discharging, or Idle
-    public var isCharging: Bool {
-        if let charge = chargePowerW, charge > 10 { return true }
-        if let batt = batteryPowerW, batt < -10 { return true }
+    // MARK: - Threshold / Deadband Aware Calculations
+
+    /// Returns effective grid power respecting deadband threshold.
+    /// If abs(wirePower) < threshold, returns 0.0 (balanced / idle). Default: 150W.
+    public func effectiveGridPower(threshold: Double = 150.0) -> Double {
+        guard let wire = wirePowerW else { return 0.0 }
+        return abs(wire) < threshold ? 0.0 : wire
+    }
+
+    /// Returns effective battery power respecting deadband threshold.
+    /// If abs(batteryPower) < threshold, returns 0.0 (idle / full). Default: 200W.
+    public func effectiveBatteryPower(threshold: Double = 200.0) -> Double {
+        guard let batt = batteryPowerW else { return 0.0 }
+        return abs(batt) < threshold ? 0.0 : batt
+    }
+
+    /// Battery state: Charging with threshold (default 200W)
+    public func isCharging(threshold: Double = 200.0) -> Bool {
+        if let charge = chargePowerW, charge >= threshold { return true }
+        if let batt = batteryPowerW, batt <= -threshold { return true }
         return false
     }
 
-    public var isDischarging: Bool {
-        if let discharge = dischargePowerW, discharge > 10 { return true }
-        if let batt = batteryPowerW, batt > 10 { return true }
+    /// Battery state: Discharging with threshold (default 200W)
+    public func isDischarging(threshold: Double = 200.0) -> Bool {
+        if let discharge = dischargePowerW, discharge >= threshold { return true }
+        if let batt = batteryPowerW, batt >= threshold { return true }
         return false
     }
 
-    /// Grid state: Buying (Importing) or Selling (Exporting)
-    public var isSellingToGrid: Bool {
+    /// Grid state: Selling (Exporting) with threshold (default 150W)
+    public func isSellingToGrid(threshold: Double = 150.0) -> Bool {
         guard let wire = wirePowerW else { return false }
-        return wire > 20
+        return wire >= threshold
     }
 
-    public var isBuyingFromGrid: Bool {
+    /// Grid state: Buying (Importing) with threshold (default 150W)
+    public func isBuyingFromGrid(threshold: Double = 150.0) -> Bool {
         guard let wire = wirePowerW else { return false }
-        return wire < -20
+        return wire <= -threshold
     }
+
+    // MARK: - Backward Compatible Defaults (using 150W grid and 200W battery defaults)
+
+    public var isCharging: Bool { isCharging(threshold: 200.0) }
+    public var isDischarging: Bool { isDischarging(threshold: 200.0) }
+    public var isSellingToGrid: Bool { isSellingToGrid(threshold: 150.0) }
+    public var isBuyingFromGrid: Bool { isBuyingFromGrid(threshold: 150.0) }
 }

@@ -12,11 +12,14 @@ public final class AppState: ObservableObject {
     @Published public var selectedStationId: Int64? = nil
     @Published public var selectedStationName: String = ""
     @Published public var snapshot: StationSnapshot? = nil
+    @Published public var stationSnapshots: [Int64: StationSnapshot] = [:]
     @Published public var isLoading: Bool = false
     @Published public var errorMessage: String? = nil
     @Published public var needsStationSelection: Bool = false
     @Published public var refreshInterval: TimeInterval = 300 // 5 minutes default
     @Published public var menuBarDisplayMode: MenuBarDisplayMode = .solarAndBattery
+    @Published public var gridPowerThresholdW: Double = 150.0 // Default 150W deadband filter for grid
+    @Published public var batteryPowerThresholdW: Double = 200.0 // Default 200W deadband filter for battery
 
     // MARK: - Private State
 
@@ -33,12 +36,15 @@ public final class AppState: ObservableObject {
         static let refreshInterval = "deye_refresh_interval"
         static let menuBarDisplayMode = "deye_menubar_display_mode"
         static let cachedSnapshot = "deye_cached_snapshot"
+        static let cachedStations = "deye_cached_stations"
+        static let gridPowerThreshold = "deye_grid_power_threshold_w"
+        static let batteryPowerThreshold = "deye_battery_power_threshold_w"
     }
 
-    private enum KeychainKeys {
-        static let appSecret = "deye_app_secret"
-        static let password = "deye_password"
-        static let accessToken = "deye_access_token"
+    private enum CredentialKeys {
+        static let appSecret = "app_secret"
+        static let password = "password"
+        static let accessToken = "access_token"
     }
 
     // MARK: - Initializer
@@ -59,9 +65,9 @@ public final class AppState: ObservableObject {
     private func loadStoredConfiguration() {
         let savedAppId = userDefaults.string(forKey: Keys.appId) ?? ""
         let savedEmail = userDefaults.string(forKey: Keys.emailOrUsername) ?? ""
-        let savedSecret = KeychainService.get(key: KeychainKeys.appSecret) ?? ""
-        let savedPassword = KeychainService.get(key: KeychainKeys.password) ?? ""
-        self.cachedToken = KeychainService.get(key: KeychainKeys.accessToken)
+        let savedSecret = CredentialStore.get(key: CredentialKeys.appSecret) ?? ""
+        let savedPassword = CredentialStore.get(key: CredentialKeys.password) ?? ""
+        self.cachedToken = CredentialStore.get(key: CredentialKeys.accessToken)
 
         self.credentials = Credentials(
             appId: savedAppId,
@@ -84,10 +90,33 @@ public final class AppState: ObservableObject {
             self.menuBarDisplayMode = mode
         }
 
+        if let savedGrid = userDefaults.object(forKey: Keys.gridPowerThreshold) as? Double {
+            self.gridPowerThresholdW = savedGrid
+        } else if let legacy = userDefaults.object(forKey: "deye_power_threshold_w") as? Double {
+            self.gridPowerThresholdW = legacy
+        } else {
+            self.gridPowerThresholdW = 150.0
+        }
+
+        if let savedBattery = userDefaults.object(forKey: Keys.batteryPowerThreshold) as? Double {
+            self.batteryPowerThresholdW = savedBattery
+        } else {
+            self.batteryPowerThresholdW = 200.0
+        }
+
+        // Restore cached stations
+        if let data = userDefaults.data(forKey: Keys.cachedStations),
+           let cachedStations = try? JSONDecoder().decode([StationItem].self, from: data) {
+            self.stations = cachedStations
+        }
+
         // Restore cached snapshot for instantaneous UI display
         if let data = userDefaults.data(forKey: Keys.cachedSnapshot),
            let cached = try? JSONDecoder().decode(StationSnapshot.self, from: data) {
             self.snapshot = cached
+            if let id = selectedStationId {
+                self.stationSnapshots[id] = cached
+            }
         }
 
         self.isLoggedIn = credentials.isValid
@@ -97,8 +126,8 @@ public final class AppState: ObservableObject {
         self.credentials = newCredentials
         userDefaults.set(newCredentials.appId, forKey: Keys.appId)
         userDefaults.set(newCredentials.emailOrUsername, forKey: Keys.emailOrUsername)
-        KeychainService.save(key: KeychainKeys.appSecret, value: newCredentials.appSecret)
-        KeychainService.save(key: KeychainKeys.password, value: newCredentials.password)
+        CredentialStore.save(key: CredentialKeys.appSecret, value: newCredentials.appSecret)
+        CredentialStore.save(key: CredentialKeys.password, value: newCredentials.password)
         self.isLoggedIn = newCredentials.isValid
     }
 
@@ -111,6 +140,16 @@ public final class AppState: ObservableObject {
     public func setMenuBarDisplayMode(_ mode: MenuBarDisplayMode) {
         self.menuBarDisplayMode = mode
         userDefaults.set(mode.rawValue, forKey: Keys.menuBarDisplayMode)
+    }
+
+    public func setGridPowerThreshold(_ value: Double) {
+        self.gridPowerThresholdW = max(0, value)
+        userDefaults.set(self.gridPowerThresholdW, forKey: Keys.gridPowerThreshold)
+    }
+
+    public func setBatteryPowerThreshold(_ value: Double) {
+        self.batteryPowerThresholdW = max(0, value)
+        userDefaults.set(self.batteryPowerThresholdW, forKey: Keys.batteryPowerThreshold)
     }
 
     private func setupTimer() {
@@ -144,7 +183,7 @@ public final class AppState: ObservableObject {
                 rawPassword: credentials.password
             )
             self.cachedToken = token
-            KeychainService.save(key: KeychainKeys.accessToken, value: token)
+            CredentialStore.save(key: CredentialKeys.accessToken, value: token)
             saveCredentials(credentials)
             self.isLoggedIn = true
 
@@ -161,16 +200,18 @@ public final class AppState: ObservableObject {
         self.cachedToken = nil
         self.snapshot = nil
         self.stations = []
+        self.stationSnapshots = [:]
         self.selectedStationId = nil
         self.selectedStationName = ""
         self.errorMessage = nil
 
-        KeychainService.clearAll()
+        CredentialStore.clearAll()
         userDefaults.removeObject(forKey: Keys.appId)
         userDefaults.removeObject(forKey: Keys.emailOrUsername)
         userDefaults.removeObject(forKey: Keys.stationId)
         userDefaults.removeObject(forKey: Keys.stationName)
         userDefaults.removeObject(forKey: Keys.cachedSnapshot)
+        userDefaults.removeObject(forKey: Keys.cachedStations)
 
         self.credentials = Credentials(appId: "", appSecret: "", emailOrUsername: "", password: "")
     }
@@ -183,6 +224,10 @@ public final class AppState: ObservableObject {
         userDefaults.set(station.displayName, forKey: Keys.stationName)
         self.needsStationSelection = false
 
+        if let cached = stationSnapshots[id] {
+            self.snapshot = cached
+        }
+
         await refresh()
     }
 
@@ -194,22 +239,23 @@ public final class AppState: ObservableObject {
         do {
             let token = try await getOrRefreshToken()
 
-            // Check station list if no station selected
-            if selectedStationId == nil {
-                let fetchedStations = try await DeyeAPI.shared.listStations(token: token)
-                self.stations = fetchedStations
+            // Always fetch stations list so we know all available stations in account
+            let fetchedStations = try await DeyeAPI.shared.listStations(token: token)
+            self.stations = fetchedStations
+            if let encoded = try? JSONEncoder().encode(fetchedStations) {
+                userDefaults.set(encoded, forKey: Keys.cachedStations)
+            }
 
-                if fetchedStations.isEmpty {
-                    throw DeyeAPIError.serverError("Hesaba bağlı istasyon bulunamadı")
-                } else if fetchedStations.count == 1, let first = fetchedStations.first, let firstId = first.resolvedId {
+            if fetchedStations.isEmpty {
+                throw DeyeAPIError.serverError("Hesaba bağlı istasyon bulunamadı")
+            }
+
+            if selectedStationId == nil || !fetchedStations.contains(where: { $0.resolvedId == selectedStationId }) {
+                if let first = fetchedStations.first, let firstId = first.resolvedId {
                     self.selectedStationId = firstId
                     self.selectedStationName = first.displayName
                     userDefaults.set(firstId, forKey: Keys.stationId)
                     userDefaults.set(first.displayName, forKey: Keys.stationName)
-                } else {
-                    self.needsStationSelection = true
-                    self.isLoading = false
-                    return
                 }
             }
 
@@ -246,6 +292,7 @@ public final class AppState: ObservableObject {
             )
 
             self.snapshot = newSnapshot
+            self.stationSnapshots[stationId] = newSnapshot
 
             // Cache snapshot for offline or fast startup
             if let encoded = try? JSONEncoder().encode(newSnapshot) {
@@ -273,7 +320,7 @@ public final class AppState: ObservableObject {
             rawPassword: credentials.password
         )
         self.cachedToken = token
-        KeychainService.save(key: KeychainKeys.accessToken, value: token)
+        CredentialStore.save(key: CredentialKeys.accessToken, value: token)
         return token
     }
 }

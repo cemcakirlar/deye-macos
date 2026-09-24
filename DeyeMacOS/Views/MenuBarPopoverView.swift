@@ -55,6 +55,26 @@ public struct MenuBarPopoverView: View {
                 .help("Anlık veriyi yenile")
             }
 
+            // Quick Station Switcher Tabs (when user has multiple stations)
+            if appState.stations.count > 1 {
+                Picker("Santral", selection: Binding(
+                    get: { appState.selectedStationId ?? 0 },
+                    set: { newId in
+                        if let target = appState.stations.first(where: { $0.resolvedId == newId }) {
+                            Task {
+                                await appState.selectStation(target)
+                            }
+                        }
+                    }
+                )) {
+                    ForEach(appState.stations, id: \.resolvedId) { station in
+                        Text(station.displayName).tag(station.resolvedId ?? 0)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            }
+
             if !appState.isLoggedIn {
                 VStack(spacing: 12) {
                     Image(systemName: "person.crop.circle.badge.exclamationmark")
@@ -92,13 +112,19 @@ public struct MenuBarPopoverView: View {
                 }
 
                 let snapshot = appState.snapshot
+                let gridThreshold = appState.gridPowerThresholdW
+                let battThreshold = appState.batteryPowerThresholdW
+                let isCharging = snapshot?.isCharging(threshold: battThreshold) ?? false
+                let isDischarging = snapshot?.isDischarging(threshold: battThreshold) ?? false
+                let effectiveGrid = snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0
+                let effectiveBatt = snapshot?.effectiveBatteryPower(threshold: battThreshold) ?? 0
 
                 // Battery SOC Bar
                 BatterySOCView(
                     socPercent: snapshot?.batterySocPercent,
-                    powerW: snapshot?.batteryPowerW,
-                    isCharging: snapshot?.isCharging ?? false,
-                    isDischarging: snapshot?.isDischarging ?? false
+                    powerW: abs(effectiveBatt),
+                    isCharging: isCharging,
+                    isDischarging: isDischarging
                 )
 
                 // 2x2 Grid for Key Metrics
@@ -120,21 +146,20 @@ public struct MenuBarPopoverView: View {
                         tintColor: .purple
                     )
 
-                    let gridPower = snapshot?.wirePowerW ?? 0
                     EnergyCard(
                         title: "Şebeke",
                         icon: "bolt.fill",
-                        valueText: Formatters.power(abs(gridPower)),
-                        subtitle: gridPower > 20 ? "Şebekeye Satış" : (gridPower < -20 ? "Şebekeden Alış" : "Dengeli"),
-                        tintColor: gridPower > 0 ? .green : .blue
+                        valueText: Formatters.power(abs(effectiveGrid)),
+                        subtitle: effectiveGrid >= gridThreshold ? "Şebekeye Satış" : (effectiveGrid <= -gridThreshold ? "Şebekeden Alış" : "Dengeli (0 W)"),
+                        tintColor: effectiveGrid >= gridThreshold ? .green : (effectiveGrid <= -gridThreshold ? .blue : .secondary)
                     )
 
                     EnergyCard(
                         title: "Batarya Gücü",
-                        icon: (snapshot?.isCharging ?? false) ? "arrow.down.forward" : "arrow.up.forward",
-                        valueText: Formatters.power(abs(snapshot?.batteryPowerW ?? 0)),
-                        subtitle: (snapshot?.isCharging ?? false) ? "Şarj Ediliyor" : ((snapshot?.isDischarging ?? false) ? "Deşarj Oluyor" : "Durağan"),
-                        tintColor: (snapshot?.isCharging ?? false) ? .green : .orange
+                        icon: isCharging ? "arrow.down.forward" : "arrow.up.forward",
+                        valueText: Formatters.power(abs(effectiveBatt)),
+                        subtitle: isCharging ? "Şarj Ediliyor" : (isDischarging ? "Deşarj Oluyor" : "Durağan (0 W)"),
+                        tintColor: isCharging ? .green : (isDischarging ? .orange : .secondary)
                     )
                 }
             }
@@ -176,5 +201,12 @@ public struct MenuBarPopoverView: View {
     private func openMainWindow() {
         openWindow(id: "main")
         NSApp.activate(ignoringOtherApps: true)
+        for window in NSApp.windows where window.identifier?.rawValue == "main" || window.title.contains("Deye Solar") {
+            if window.isMiniaturized {
+                window.deminiaturize(nil)
+            }
+            window.makeKeyAndOrderFront(nil)
+            window.orderFrontRegardless()
+        }
     }
 }

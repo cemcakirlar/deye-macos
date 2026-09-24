@@ -100,6 +100,62 @@ public struct MainDashboardView: View {
             .padding(.vertical, 16)
             .background(Color(nsColor: .windowBackgroundColor))
 
+            // Station Tabs Strip (visible when user has multiple stations)
+            if appState.stations.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(appState.stations, id: \.resolvedId) { station in
+                            let isSelected = (station.resolvedId == appState.selectedStationId)
+                            Button {
+                                Task {
+                                    await appState.selectStation(station)
+                                }
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: isSelected ? "sun.max.fill" : "sun.max")
+                                        .foregroundStyle(isSelected ? Color.orange : Color.secondary)
+                                        .font(.system(size: 13, weight: .semibold))
+
+                                    Text(station.displayName)
+                                        .font(.system(size: 13, weight: isSelected ? .bold : .medium))
+                                        .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+
+                                    if let id = station.resolvedId, let snap = appState.stationSnapshots[id], let pv = snap.generationPowerW {
+                                        Text(Formatters.compactPower(pv))
+                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                            .foregroundStyle(isSelected ? Color.orange : Color.secondary)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(isSelected ? Color.orange.opacity(0.15) : Color.primary.opacity(0.06))
+                                            .clipShape(Capsule())
+                                    }
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                                .background {
+                                    if isSelected {
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .fill(Color(nsColor: .controlBackgroundColor))
+                                            .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
+                                            .overlay {
+                                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                                    .strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                                            }
+                                    } else {
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .fill(Color.primary.opacity(0.04))
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 8)
+                }
+                .background(Color(nsColor: .windowBackgroundColor).opacity(0.95))
+            }
+
             Divider()
 
             // Main Body ScrollView
@@ -128,17 +184,27 @@ public struct MainDashboardView: View {
 
                     // Top Row: Power Flow Diagram & Battery Gauge
                     HStack(alignment: .top, spacing: 20) {
-                        PowerFlowDiagram(snapshot: appState.snapshot)
-                            .frame(maxWidth: .infinity)
+                        PowerFlowDiagram(
+                            snapshot: appState.snapshot,
+                            gridThreshold: appState.gridPowerThresholdW,
+                            batteryThreshold: appState.batteryPowerThresholdW
+                        )
+                        .frame(maxWidth: .infinity)
 
                         VStack(spacing: 16) {
                             let snapshot = appState.snapshot
+                            let gridThreshold = appState.gridPowerThresholdW
+                            let battThreshold = appState.batteryPowerThresholdW
+                            let effectiveGrid = snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0
+                            let effectiveBatt = snapshot?.effectiveBatteryPower(threshold: battThreshold) ?? 0
+                            let isCharging = snapshot?.isCharging(threshold: battThreshold) ?? false
+                            let isDischarging = snapshot?.isDischarging(threshold: battThreshold) ?? false
 
                             BatterySOCView(
                                 socPercent: snapshot?.batterySocPercent,
-                                powerW: snapshot?.batteryPowerW,
-                                isCharging: snapshot?.isCharging ?? false,
-                                isDischarging: snapshot?.isDischarging ?? false
+                                powerW: abs(effectiveBatt),
+                                isCharging: isCharging,
+                                isDischarging: isDischarging
                             )
 
                             // 2x2 Metric Cards
@@ -160,21 +226,20 @@ public struct MainDashboardView: View {
                                     tintColor: .purple
                                 )
 
-                                let gridPower = snapshot?.wirePowerW ?? 0
                                 EnergyCard(
                                     title: "Şebeke",
                                     icon: "bolt.fill",
-                                    valueText: Formatters.power(abs(gridPower)),
-                                    subtitle: gridPower > 20 ? "Şebekeye Satış" : (gridPower < -20 ? "Şebekeden Alış" : "Dengeli"),
-                                    tintColor: gridPower > 0 ? .green : .blue
+                                    valueText: Formatters.power(abs(effectiveGrid)),
+                                    subtitle: effectiveGrid >= gridThreshold ? "Şebekeye Satış" : (effectiveGrid <= -gridThreshold ? "Şebekeden Alış" : "Dengeli (0 W)"),
+                                    tintColor: effectiveGrid >= gridThreshold ? .green : (effectiveGrid <= -gridThreshold ? .blue : .secondary)
                                 )
 
                                 EnergyCard(
                                     title: "Batarya Gücü",
-                                    icon: (snapshot?.isCharging ?? false) ? "arrow.down.forward" : "arrow.up.forward",
-                                    valueText: Formatters.power(abs(snapshot?.batteryPowerW ?? 0)),
-                                    subtitle: (snapshot?.isCharging ?? false) ? "Şarj Ediliyor" : ((snapshot?.isDischarging ?? false) ? "Deşarj Oluyor" : "Durağan"),
-                                    tintColor: (snapshot?.isCharging ?? false) ? .green : .orange
+                                    icon: isCharging ? "arrow.down.forward" : (isDischarging ? "arrow.up.forward" : "pause.fill"),
+                                    valueText: Formatters.power(abs(effectiveBatt)),
+                                    subtitle: isCharging ? "Şarj Ediliyor" : (isDischarging ? "Deşarj Oluyor" : "Durağan (0 W)"),
+                                    tintColor: isCharging ? .green : (isDischarging ? .orange : .secondary)
                                 )
                             }
                         }

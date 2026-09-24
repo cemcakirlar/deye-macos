@@ -19,7 +19,7 @@ public struct MenuBarLabelView: View {
                 Text("☀️ Deye")
             }
         }
-        .id("menubar_label_\(appState.menuBarDisplayMode.rawValue)_\(appState.snapshot?.fetchedAtEpochMs ?? 0)")
+        .id("menubar_label_\(appState.menuBarDisplayMode.rawValue)_\(appState.gridPowerThresholdW)_\(appState.batteryPowerThresholdW)_\(appState.snapshot?.fetchedAtEpochMs ?? 0)")
     }
 
     @ViewBuilder
@@ -27,9 +27,13 @@ public struct MenuBarLabelView: View {
         let solar = Formatters.compactPower(snapshot.generationPowerW)
         let soc = Formatters.percentage(snapshot.batterySocPercent)
         let home = Formatters.compactPower(snapshot.consumptionPowerW)
-        let gridPower = snapshot.wirePowerW ?? 0
-        let grid = Formatters.compactPower(abs(gridPower))
-        let battEmoji = snapshot.isCharging ? "⚡️🔋" : "🔋"
+
+        let gridThreshold = appState.gridPowerThresholdW
+        let battThreshold = appState.batteryPowerThresholdW
+        let effectiveGrid = snapshot.effectiveGridPower(threshold: gridThreshold)
+        let gridText = Formatters.compactPower(abs(effectiveGrid))
+        let isCharging = snapshot.isCharging(threshold: battThreshold)
+        let battEmoji = isCharging ? "⚡️🔋" : "🔋"
 
         switch appState.menuBarDisplayMode {
         case .solarAndBattery:
@@ -39,8 +43,8 @@ public struct MenuBarLabelView: View {
             Text("☀️ \(solar)")
 
         case .fullSummary:
-            let gridEmoji = gridPower > 20 ? "⚡️↗" : (gridPower < -20 ? "⚡️↘" : "⚡️")
-            Text("☀️ \(solar)  \(battEmoji) \(soc)  🏠 \(home)  \(gridEmoji) \(grid)")
+            let gridEmoji = effectiveGrid >= gridThreshold ? "⚡️↗" : (effectiveGrid <= -gridThreshold ? "⚡️↘" : "⚡️")
+            Text("☀️ \(solar)  \(battEmoji) \(soc)  🏠 \(home)  \(gridEmoji) \(gridText)")
 
         case .iconOnly:
             Text("☀️")

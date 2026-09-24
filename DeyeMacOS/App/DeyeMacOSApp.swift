@@ -7,8 +7,8 @@ public struct DeyeMacOSApp: App {
     public init() {}
 
     public var body: some Scene {
-        // Main Application Window
-        WindowGroup("Deye Solar Monitor", id: "main") {
+        // Main Application Window (Single instance window)
+        Window("Deye Solar Monitor", id: "main") {
             MainDashboardView(appState: appState)
                 .environmentObject(appState)
         }

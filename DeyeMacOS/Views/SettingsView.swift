@@ -91,6 +91,84 @@ public struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+
+                    Section("Güç Eşik Değerleri (Tolerans / Deadband)") {
+                        // Grid Threshold
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Label("Şebeke Eşiği:", systemImage: "bolt.fill")
+                                    .foregroundStyle(.blue)
+                                Spacer()
+                                Text("±\(Int(appState.gridPowerThresholdW)) W")
+                                    .font(.system(.body, design: .monospaced))
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.accentColor)
+
+                                Stepper("", value: Binding(
+                                    get: { appState.gridPowerThresholdW },
+                                    set: { appState.setGridPowerThreshold($0) }
+                                ), in: 0...500, step: 25)
+                                .labelsHidden()
+                            }
+
+                            HStack(spacing: 6) {
+                                Text("Hızlı Seçim:")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+
+                                ForEach([50.0, 100.0, 150.0, 200.0, 300.0], id: \.self) { val in
+                                    Button("\(Int(val)) W\(val == 150.0 ? " (Varsayılan)" : "")") {
+                                        appState.setGridPowerThreshold(val)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.mini)
+                                    .tint(appState.gridPowerThresholdW == val ? .accentColor : .secondary)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 2)
+
+                        Divider()
+
+                        // Battery Threshold
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Label("Batarya Eşiği:", systemImage: "battery.100percent.bolt")
+                                    .foregroundStyle(.green)
+                                Spacer()
+                                Text("±\(Int(appState.batteryPowerThresholdW)) W")
+                                    .font(.system(.body, design: .monospaced))
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.accentColor)
+
+                                Stepper("", value: Binding(
+                                    get: { appState.batteryPowerThresholdW },
+                                    set: { appState.setBatteryPowerThreshold($0) }
+                                ), in: 0...500, step: 25)
+                                .labelsHidden()
+                            }
+
+                            HStack(spacing: 6) {
+                                Text("Hızlı Seçim:")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+
+                                ForEach([50.0, 100.0, 150.0, 200.0, 300.0], id: \.self) { val in
+                                    Button("\(Int(val)) W\(val == 200.0 ? " (Varsayılan)" : "")") {
+                                        appState.setBatteryPowerThreshold(val)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.mini)
+                                    .tint(appState.batteryPowerThresholdW == val ? .accentColor : .secondary)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 2)
+
+                        Text("Şebeke CT sensörleri (varsayılan ±150 W) ve batarya BMS sensörlerindeki (varsayılan ±200 W) küçük ölçüm sapmalarını sıfır kabul ederek durağan durumda sahte şarj ikonu veya akış oklarını filtreler.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .formStyle(.grouped)
                 .tabItem {
@@ -161,7 +239,7 @@ public struct SettingsView: View {
             .padding(.vertical, 12)
             .background(Color(nsColor: .windowBackgroundColor))
         }
-        .frame(width: 530, height: 560)
+        .frame(width: 550, height: 690)
     }
 
     @ViewBuilder
@@ -169,9 +247,11 @@ public struct SettingsView: View {
         let solar = Formatters.compactPower(appState.snapshot?.generationPowerW ?? 2450)
         let soc = Formatters.percentage(appState.snapshot?.batterySocPercent ?? 85)
         let home = Formatters.compactPower(appState.snapshot?.consumptionPowerW ?? 650)
-        let gridPower = appState.snapshot?.wirePowerW ?? 1800
-        let grid = Formatters.compactPower(abs(gridPower))
-        let isCharging = appState.snapshot?.isCharging ?? true
+        let gridThreshold = appState.gridPowerThresholdW
+        let battThreshold = appState.batteryPowerThresholdW
+        let effectiveGrid = appState.snapshot?.effectiveGridPower(threshold: gridThreshold) ?? 0
+        let grid = Formatters.compactPower(abs(effectiveGrid))
+        let isCharging = appState.snapshot?.isCharging(threshold: battThreshold) ?? false
         let battEmoji = isCharging ? "⚡️🔋" : "🔋"
 
         switch mode {
@@ -180,7 +260,7 @@ public struct SettingsView: View {
         case .solarOnly:
             Text("☀️ \(solar)")
         case .fullSummary:
-            let gridEmoji = gridPower > 20 ? "⚡️↗" : (gridPower < -20 ? "⚡️↘" : "⚡️")
+            let gridEmoji = effectiveGrid >= gridThreshold ? "⚡️↗" : (effectiveGrid <= -gridThreshold ? "⚡️↘" : "⚡️")
             Text("☀️ \(solar)  \(battEmoji) \(soc)  🏠 \(home)  \(gridEmoji) \(grid)")
         case .iconOnly:
             Text("☀️")
