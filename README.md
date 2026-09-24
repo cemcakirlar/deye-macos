@@ -52,18 +52,25 @@ DeyeCloud Open API (EU veri merkezi) ile entegre çalışır; anlık üretim, t�
 
 ```
 deye-macos/
+├── scripts/
+│   ├── build.sh                 # Debug/Release derleme betiği
+│   ├── run.sh                   # Derleme ve başlatma betiği
+│   ├── stop.sh                  # Çalışan uygulamayı sonlandırma betiği
+│   ├── install.sh               # /Applications dizinine kurma betiği
+│   └── logs.sh                  # Canlı sistem loglarını dinleme betiği
+├── Makefile                     # make run / stop / install kısayolları
 ├── DeyeMacOS.xcodeproj/         # Standart Xcode proje dosyası
 │   └── project.pbxproj
 ├── DeyeMacOS/
 │   ├── App/
-│   │   ├── DeyeMacOSApp.swift   # App lifecycle, WindowGroup & MenuBarExtra
+│   │   ├── DeyeMacOSApp.swift   # App lifecycle, Window & MenuBarExtra
 │   │   └── AppState.swift       # ObservableObject, durum ve otomatik yenileme yönetimi
 │   ├── Models/
 │   │   ├── DeyeModels.swift     # API DTO modelleri, Credentials, MenuBarDisplayMode
 │   │   └── StationSnapshot.swift# Normalize edilmiş anlık enerji modeli
 │   ├── Services/
 │   │   ├── DeyeAPI.swift        # URLSession async/await istemcisi (401 auto-retry)
-│   │   ├── KeychainService.swift# Apple Keychain ile güvenli şifre saklama
+│   │   ├── CredentialStore.swift# Güvenli yerel veri saklama (Android DataStore eşdeğeri)
 │   │   ├── CryptoHelper.swift   # CryptoKit SHA-256 hex
 │   │   └── Formatters.swift     # Güç (W/kW), yüzde ve zaman biçimlendiricileri
 │   ├── Views/
@@ -87,26 +94,52 @@ deye-macos/
 
 ---
 
-## Derleme ve Çalıştırma
+## Derleme, Çalıştırma ve Kurulum
 
-### 1. Xcode ile Çalıştırma (Önerilen)
+Xcode arayüzüne bağımlı kalmadan, doğrudan bu IDE / terminal içerisinden projenizi yönetebilirsiniz:
 
-1. `DeyeMacOS.xcodeproj` dosyasını Xcode ile açın:
-   ```bash
-   open DeyeMacOS.xcodeproj
-   ```
-2. Şema olarak **DeyeMacOS** seçin.
-3. **Product > Run** (veya `Cmd + R`) tuşlarına basarak derleyin ve çalıştırın.
-
-### 2. Terminal ile Çalıştırma
+### 1. Terminal / IDE Kısayolları (Make)
 
 ```bash
-# Swift Package Manager ile derleme ve çalıştırma
-swift run
+# Debug derleyip uygulamayı arka planda başlatır (Varsayılan):
+make run
 
-# veya xcodebuild ile derleme
-xcodebuild -project DeyeMacOS.xcodeproj -scheme DeyeMacOS build
+# Terminal ön planında başlatıp canlı logları doğrudan görmek için:
+make run-fg
+
+# Çalışan Deye Solar Monitor uygulamasını durdurur:
+make stop
+
+# Sadece Debug derlemesi yapar:
+make build
+
+# Sadece Release (Prod) derlemesi yapar:
+make release
+
+# Canlı sistem loglarını dinler:
+make logs
+
+# Derleme önbelleğini temizler:
+make clean
 ```
+
+### 2. Kendi Makinenize Kalıcı Kurulum (Prod / Release)
+
+Xcode veya terminal açmaya gerek kalmadan uygulamayı macOS'un kendi uygulamaları (`/Applications`) arasına kurup normal bir Mac uygulaması gibi kullanmak için:
+
+```bash
+make install
+# veya: ./scripts/install.sh --release
+```
+
+Bu komut:
+1. Uygulamayı en yüksek performanslı **Release (Prod)** modunda derler.
+2. Yerel macOS ad-hoc kod imzalamasını yapar ve Gatekeeper karantinasını temizler.
+3. Uygulamayı **`/Applications/Deye Solar Monitor.app`** dizinine kurar.
+4. macOS LaunchServices'e kaydeder; böylece **Spotlight (Cmd + Space)** ve **Launchpad** üzerinden hemen bulunabilir.
+5. Uygulamayı başlatır.
+
+> **İpucu:** Mac açıldığında otomatik başlamasını isterseniz: *Sistem Ayarları -> Genel -> Giriş Öğeleri* menüsünden `Deye Solar Monitor` uygulamasını ekleyebilirsiniz.
 
 ---
 
@@ -119,7 +152,7 @@ Uygulamayı ilk açtığınızda sizi giriş ekranı karşılar:
 3. **E-posta / Kullanıcı Adı:** Deye mobil/web uygulamasında kullandığınız hesap.
 4. **Şifre:** Deye hesap şifreniz.
 
-Giriş yapıldıktan sonra bilgiler sisteminizdeki **Apple Keychain** kasasına kaydedilir ve sonraki açılışlarda otomatik olarak oturum açılır.
+Giriş yapıldıktan sonra bilgiler uygulamanın korumalı yerel alanına (`UserDefaults` - Android DataStore eşdeğeri) kaydedilir ve sonraki açılışlarda otomatik olarak oturum açılır. Gereksiz sistem şifresi istemi (Keychain prompt) oluşturmaz.
 
 ---
 
