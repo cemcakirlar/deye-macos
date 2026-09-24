@@ -3,6 +3,27 @@
 All notable changes to the Deye Solar Monitor for macOS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.3] - 2026-09-24
+
+### 🐛 Bug Fixes
+- fix(window): prevent main window from showing on launch when disabled (`a6c24dd`)
+
+### 🔧 Maintenance & Tooling
+- chore(scripts): fix eof handling in changelog parser (`216453b`)
+
+---
+
+### 🍏 macOS Installation & Gatekeeper Note
+Because this open-source build is distributed outside the Mac App Store without a paid Apple Developer ID, macOS Gatekeeper may show a warning (*"Apple could not verify..."*) on first launch.
+
+**To open the app, run this single command in Terminal:**
+```bash
+xattr -cr "/Applications/Deye Solar Monitor.app"
+```
+*Alternatively, open **System Settings ➔ Privacy & Security** and click **Open Anyway**.* 
+
+
+
 ## [v1.0.2] - 2026-09-24
 
 ### ⚡ Performance & Refactoring
