@@ -130,3 +130,57 @@ public enum MenuBarDisplayMode: String, CaseIterable, Identifiable, Codable, Sen
         }
     }
 }
+
+// MARK: - Data Centers
+
+public struct DeyeDataCenter: Identifiable, Hashable, Codable, Sendable {
+    public let id: String
+    public var name: String
+    public var apiURL: String
+    public var isCustom: Bool
+
+    public init(id: String, name: String, apiURL: String, isCustom: Bool = false) {
+        self.id = id
+        self.name = name
+        self.apiURL = apiURL.hasSuffix("/") ? apiURL : apiURL + "/"
+        self.isCustom = isCustom
+    }
+
+    /// Resolved URL object
+    public var resolvedURL: URL? {
+        URL(string: apiURL)
+    }
+
+    /// Official known Deye Cloud data centers
+    public static let europe = DeyeDataCenter(
+        id: "eu",
+        name: "Avrupa, Türkiye ve Afrika (eu1)",
+        apiURL: "https://eu1-developer.deyecloud.com/v1.0/"
+    )
+
+    public static let americas = DeyeDataCenter(
+        id: "am",
+        name: "Kuzey ve Güney Amerika (us1)",
+        apiURL: "https://us1-developer.deyecloud.com/v1.0/"
+    )
+
+    public static let india = DeyeDataCenter(
+        id: "india",
+        name: "Hindistan (india)",
+        apiURL: "https://india-developer.deyecloud.com/v1.0/"
+    )
+
+    public static let custom = DeyeDataCenter(
+        id: "custom",
+        name: "Özel / Yeni Veri Merkezi (Custom URL)",
+        apiURL: "https://",
+        isCustom: true
+    )
+
+    public static let defaults: [DeyeDataCenter] = [
+        .europe,
+        .americas,
+        .india,
+        .custom
+    ]
+}

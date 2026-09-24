@@ -8,6 +8,8 @@ public struct LoginView: View {
     @State private var emailOrUsername: String = ""
     @State private var password: String = ""
     @State private var showSecret: Bool = false
+    @State private var selectedCenterId: String = DeyeDataCenter.europe.id
+    @State private var customURLText: String = "https://"
 
     public init(appState: AppState) {
         self.appState = appState
@@ -47,6 +49,38 @@ public struct LoginView: View {
 
             // Input Fields Form
             VStack(alignment: .leading, spacing: 14) {
+                // Data Center Selection
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Veri Merkezi (Data Center)")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("Hesabın açıldığı bölge")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Picker("Veri Merkezi", selection: $selectedCenterId) {
+                        ForEach(DeyeDataCenter.defaults) { center in
+                            Text(center.name).tag(center.id)
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    if selectedCenterId == "custom" {
+                        VStack(alignment: .leading, spacing: 2) {
+                            TextField("https://sunucu-adresi.deyecloud.com/v1.0/", text: $customURLText)
+                                .textFieldStyle(.roundedBorder)
+                            Text("Deye OpenAPI v1.0 kök URL adresini girin.")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.top, 2)
+                    }
+                }
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text("App ID")
                         .font(.caption)
@@ -122,8 +156,22 @@ public struct LoginView: View {
                     password: password
                 )
                 appState.credentials = creds
+
+                let targetCenter: DeyeDataCenter
+                if selectedCenterId == "custom" {
+                    let cleanURL = customURLText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    targetCenter = DeyeDataCenter(
+                        id: "custom",
+                        name: "Özel (\(cleanURL))",
+                        apiURL: cleanURL,
+                        isCustom: true
+                    )
+                } else {
+                    targetCenter = DeyeDataCenter.defaults.first(where: { $0.id == selectedCenterId }) ?? .europe
+                }
+
                 Task {
-                    await appState.login()
+                    await appState.login(dataCenter: targetCenter)
                 }
             } label: {
                 HStack {
@@ -153,19 +201,29 @@ public struct LoginView: View {
             }
         }
         .padding(32)
-        .frame(minWidth: 460, minHeight: 520)
+        .frame(minWidth: 460, minHeight: 560)
         .onAppear {
             appId = appState.credentials.appId
             appSecret = appState.credentials.appSecret
             emailOrUsername = appState.credentials.emailOrUsername
             password = appState.credentials.password
+            selectedCenterId = appState.selectedDataCenter.id
+            if appState.selectedDataCenter.isCustom {
+                customURLText = appState.selectedDataCenter.apiURL
+            }
         }
     }
 
     private var isFormValid: Bool {
-        !appId.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !appSecret.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !emailOrUsername.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !password.isEmpty
+        let baseValid = !appId.trimmingCharacters(in: .whitespaces).isEmpty &&
+            !appSecret.trimmingCharacters(in: .whitespaces).isEmpty &&
+            !emailOrUsername.trimmingCharacters(in: .whitespaces).isEmpty &&
+            !password.isEmpty
+
+        if selectedCenterId == "custom" {
+            let customValid = customURLText.trimmingCharacters(in: .whitespaces).hasPrefix("http")
+            return baseValid && customValid
+        }
+        return baseValid
     }
 }

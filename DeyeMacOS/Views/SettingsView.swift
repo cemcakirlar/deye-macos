@@ -173,6 +173,8 @@ public struct SettingsView: View {
                 // Account Tab
                 Form {
                     Section("Deye Cloud Hesabı") {
+                        LabeledContent("Veri Merkezi:", value: appState.selectedDataCenter.name)
+                        LabeledContent("API Endpoint:", value: appState.selectedDataCenter.apiURL)
                         LabeledContent("E-posta / Kullanıcı:", value: appState.credentials.emailOrUsername.isEmpty ? "Girilmedi" : appState.credentials.emailOrUsername)
                         LabeledContent("App ID:", value: appState.credentials.appId.isEmpty ? "Girilmedi" : appState.credentials.appId)
                         LabeledContent("Aktif Santral:", value: appState.selectedStationName.isEmpty ? "Seçilmedi" : appState.selectedStationName)

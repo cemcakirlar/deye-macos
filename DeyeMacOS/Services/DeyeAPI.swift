@@ -26,7 +26,7 @@ public enum DeyeAPIError: LocalizedError {
 public actor DeyeAPI {
     public static let shared = DeyeAPI()
 
-    private let baseURL = URL(string: "https://eu1-developer.deyecloud.com/v1.0/")!
+    private var baseURL: URL = DeyeDataCenter.europe.resolvedURL ?? URL(string: "https://eu1-developer.deyecloud.com/v1.0/")!
     private let session: URLSession
 
     private init() {
@@ -36,9 +36,33 @@ public actor DeyeAPI {
         self.session = URLSession(configuration: config)
     }
 
-    /// Obtains an access token from Deye Cloud API
-    public func fetchToken(appId: String, appSecret: String, emailOrUsername: String, rawPassword: String) async throws -> String {
-        guard var components = URLComponents(url: baseURL.appendingPathComponent("account/token"), resolvingAgainstBaseURL: true) else {
+    /// Sets the active data center for API calls
+    public func setDataCenter(_ dataCenter: DeyeDataCenter) {
+        if let url = dataCenter.resolvedURL {
+            self.baseURL = url
+        }
+    }
+
+    /// Sets the base URL directly
+    public func setBaseURL(_ url: URL) {
+        self.baseURL = url
+    }
+
+    /// Returns the current active base URL
+    public func currentBaseURL() -> URL {
+        return self.baseURL
+    }
+
+    /// Obtains an access token from Deye Cloud API, optionally targeting a specific base URL
+    public func fetchToken(
+        appId: String,
+        appSecret: String,
+        emailOrUsername: String,
+        rawPassword: String,
+        targetBaseURL: URL? = nil
+    ) async throws -> String {
+        let effectiveBaseURL = targetBaseURL ?? self.baseURL
+        guard var components = URLComponents(url: effectiveBaseURL.appendingPathComponent("account/token"), resolvingAgainstBaseURL: true) else {
             throw DeyeAPIError.invalidResponse
         }
         components.queryItems = [
@@ -87,6 +111,7 @@ public actor DeyeAPI {
             }
 
             let cleanToken = token.hasPrefix("Bearer ") ? String(token.dropFirst(7)).trimmingCharacters(in: .whitespaces) : token
+            self.baseURL = effectiveBaseURL
             return cleanToken
         } catch let err as DeyeAPIError {
             throw err

@@ -22,6 +22,7 @@ public final class AppState: ObservableObject {
     @Published public var gridExportThresholdW: Double = 150.0 // Grid sell / export (-) threshold
     @Published public var batteryChargeThresholdW: Double = 200.0 // Battery charge (-) threshold
     @Published public var batteryDischargeThresholdW: Double = 200.0 // Battery discharge / draw (+) threshold
+    @Published public var selectedDataCenter: DeyeDataCenter = .europe // Default to Europe
     @Published public var showMainWindowOnLaunch: Bool = false // Default false (hidden on launch)
 
     // MARK: - Private State
@@ -40,6 +41,7 @@ public final class AppState: ObservableObject {
         static let menuBarDisplayMode = "deye_menubar_display_mode"
         static let cachedSnapshot = "deye_cached_snapshot"
         static let cachedStations = "deye_cached_stations"
+        static let selectedDataCenter = "deye_selected_datacenter"
         static let gridImportThreshold = "deye_grid_import_threshold_w"
         static let gridExportThreshold = "deye_grid_export_threshold_w"
         static let batteryChargeThreshold = "deye_battery_charge_threshold_w"
@@ -123,6 +125,20 @@ public final class AppState: ObservableObject {
 
         self.showMainWindowOnLaunch = userDefaults.bool(forKey: Keys.showMainWindowOnLaunch)
 
+        // Restore selected data center
+        if let data = userDefaults.data(forKey: Keys.selectedDataCenter),
+           let savedCenter = try? JSONDecoder().decode(DeyeDataCenter.self, from: data) {
+            self.selectedDataCenter = savedCenter
+            Task {
+                await DeyeAPI.shared.setDataCenter(savedCenter)
+            }
+        } else {
+            self.selectedDataCenter = .europe
+            Task {
+                await DeyeAPI.shared.setDataCenter(.europe)
+            }
+        }
+
         self.isLoggedIn = credentials.isValid
     }
 
@@ -166,6 +182,16 @@ public final class AppState: ObservableObject {
         userDefaults.set(self.batteryDischargeThresholdW, forKey: Keys.batteryDischargeThreshold)
     }
 
+    public func setDataCenter(_ dataCenter: DeyeDataCenter) {
+        self.selectedDataCenter = dataCenter
+        if let encoded = try? JSONEncoder().encode(dataCenter) {
+            userDefaults.set(encoded, forKey: Keys.selectedDataCenter)
+        }
+        Task {
+            await DeyeAPI.shared.setDataCenter(dataCenter)
+        }
+    }
+
     public func setShowMainWindowOnLaunch(_ value: Bool) {
         self.showMainWindowOnLaunch = value
         userDefaults.set(value, forKey: Keys.showMainWindowOnLaunch)
@@ -185,11 +211,13 @@ public final class AppState: ObservableObject {
 
     // MARK: - Actions
 
-    public func login() async {
+    public func login(dataCenter: DeyeDataCenter? = nil) async {
         guard credentials.isValid else {
             self.errorMessage = "Lütfen tüm kimlik bilgilerini eksiksiz doldurun."
             return
         }
+
+        let targetCenter = dataCenter ?? self.selectedDataCenter
 
         self.isLoading = true
         self.errorMessage = nil
@@ -199,8 +227,10 @@ public final class AppState: ObservableObject {
                 appId: credentials.appId,
                 appSecret: credentials.appSecret,
                 emailOrUsername: credentials.emailOrUsername,
-                rawPassword: credentials.password
+                rawPassword: credentials.password,
+                targetBaseURL: targetCenter.resolvedURL
             )
+            self.setDataCenter(targetCenter)
             self.cachedToken = token
             CredentialStore.save(key: CredentialKeys.accessToken, value: token)
             saveCredentials(credentials)
@@ -336,7 +366,8 @@ public final class AppState: ObservableObject {
             appId: credentials.appId,
             appSecret: credentials.appSecret,
             emailOrUsername: credentials.emailOrUsername,
-            rawPassword: credentials.password
+            rawPassword: credentials.password,
+            targetBaseURL: selectedDataCenter.resolvedURL
         )
         self.cachedToken = token
         CredentialStore.save(key: CredentialKeys.accessToken, value: token)
