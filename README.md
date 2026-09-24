@@ -2,7 +2,7 @@
 
 A modern, lightweight, native macOS menu bar and desktop monitoring application for Deye solar inverters and home energy storage systems.
 
-Seamlessly integrates with the DeyeCloud Open API (EU region) to display live PV production, household consumption, grid feed-in/purchase, and battery status directly in the macOS menu bar and in an elegant desktop dashboard window.
+Seamlessly integrates with the DeyeCloud Open API across global regions (Europe & Turkey, Americas, India, or Custom Endpoints) to display live PV production, household consumption, grid feed-in/purchase, and battery status directly in the macOS menu bar and in an elegant desktop dashboard window.
 
 ---
 
@@ -15,12 +15,27 @@ Seamlessly integrates with the DeyeCloud Open API (EU region) to display live PV
 - **Dual Display Modes (Menu Bar & Independent Desktop Window):**
   - Use it as an unobtrusive menu bar companion or open a full desktop dashboard.
   - Interactive live energy flow diagram (PV Array ➔ Inverter ➔ Grid / Home / Battery directional arrows and real-time power readings).
+  - Configurable startup preference (start silently in menu bar or open desktop window on launch).
+- **Global Multi-Region & Custom Data Center Support:**
+  - Direct selection of official Deye Cloud data centers:
+    - **Europe, Turkey & Africa (`eu1`)**
+    - **North & South America (`us1`)**
+    - **India (`india`)**
+  - **Custom / New Data Center URL:** Enter arbitrary Deye OpenAPI base endpoints to future-proof against new cloud regions without requiring app updates.
+  - Selected data center is remembered securely across sessions and displayed in Settings.
 - **Real-Time Energy Metrics:**
   - Solar generation (PV - W / kW)
   - Battery State of Charge (SOC %) with dynamic gradient indicators
   - Battery charge / discharge power (W)
   - Household consumption (W)
   - Grid import / export power (W)
+- **Directional Power Thresholds & Noise Filtering:**
+  - Independent threshold controls for positive (+) and negative (-) directional power flows:
+    - **Grid Import Threshold:** Filters small fluctuations when drawing power from the grid.
+    - **Grid Export (Sell) Threshold:** Prevents micro-export readings from triggering false grid feed-in states when home and solar are balanced.
+    - **Battery Charge Threshold:** Filters idle battery trickle or measurement jitter.
+    - **Battery Discharge (Draw) Threshold:** Filters small battery BMS drain fluctuations.
+  - Values below the chosen threshold are treated as balanced / idle (0 W).
 - **Security-First Architecture:**
   - Sensitive credentials (App Secret, password, API tokens) are securely stored in the sandboxed application container; no external password prompt interruptions.
   - Password hashing via CryptoKit SHA-256 hex compliant with DeyeCloud API specifications.
@@ -172,12 +187,24 @@ When downloading the `.zip` archive via a web browser from [GitHub Releases](htt
 
 Upon first launch, enter your DeyeCloud API developer credentials:
 
-1. **App ID:** Your App ID from the DeyeCloud Developer Portal.
-2. **App Secret:** Your App Secret from the DeyeCloud Developer Portal.
-3. **Email / Username:** Your Deye registered user account.
-4. **Password:** Your Deye account password.
+1. **Veri Merkezi (Data Center):** Choose the region where your Deye account was registered (*Europe, Turkey & Africa*, *Americas*, *India*, or enter a *Custom URL*).
+2. **App ID:** Your App ID from the DeyeCloud Developer Portal.
+3. **App Secret:** Your App Secret from the DeyeCloud Developer Portal.
+4. **Email / Username:** Your Deye registered user account.
+5. **Password:** Your Deye account password.
 
-Credentials are saved in the app's sandboxed storage. Subsequent launches will automatically log in and begin streaming data without prompting.
+Credentials and data center selections are saved securely in the app's sandboxed storage. Subsequent launches will automatically log in and begin streaming data without prompting.
+
+### Threshold & Sensitivity Tuning
+
+To filter out CT clamp and BMS measurement noise or calibrate when power flow arrows activate:
+1. Open **Settings** (`Cmd + ,`) and select the **General** tab.
+2. Fine-tune:
+   - **Grid Import Threshold:** Wattage sensitivity when purchasing power from the grid (default: 50 W).
+   - **Grid Export (Sell) Threshold:** Wattage sensitivity when selling power to the grid (default: 150 W).
+   - **Battery Charge Threshold:** Wattage sensitivity when charging the battery (default: 200 W).
+   - **Battery Discharge Threshold:** Wattage sensitivity when draining the battery to supply household loads (default: 200 W).
+3. Readings below these thresholds are considered stable / idle (0 W).
 
 ---
 
