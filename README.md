@@ -227,4 +227,4 @@ make release-dry-run
 
 ## License
 
-Personal and private utility application. All rights reserved.
+This project is licensed under the [MIT License](LICENSE).
