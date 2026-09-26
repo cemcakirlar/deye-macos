@@ -3,6 +3,7 @@ import SwiftUI
 public struct MenuBarPopoverView: View {
     @ObservedObject var appState: AppState
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
 
     public init(appState: AppState) {
         self.appState = appState
@@ -37,22 +38,36 @@ public struct MenuBarPopoverView: View {
 
                 Spacer()
 
-                Button {
-                    Task {
-                        await appState.refresh()
+                HStack(spacing: 6) {
+                    Button {
+                        Task {
+                            await appState.refresh()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 13, weight: .bold))
+                            .rotationEffect(.degrees(appState.isLoading ? 360 : 0))
+                            .animation(appState.isLoading ? .linear(duration: 1).repeatForever(autoreverses: false) : .default, value: appState.isLoading)
                     }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 13, weight: .bold))
-                        .rotationEffect(.degrees(appState.isLoading ? 360 : 0))
-                        .animation(appState.isLoading ? .linear(duration: 1).repeatForever(autoreverses: false) : .default, value: appState.isLoading)
+                    .buttonStyle(.plain)
+                    .padding(6)
+                    .background(Color.primary.opacity(0.06))
+                    .clipShape(Circle())
+                    .disabled(appState.isLoading || !appState.isLoggedIn)
+                    .help("Anlık veriyi yenile")
+
+                    Button {
+                        openSettings()
+                    } label: {
+                        Image(systemName: "gear")
+                            .font(.system(size: 13, weight: .bold))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(6)
+                    .background(Color.primary.opacity(0.06))
+                    .clipShape(Circle())
+                    .help("Ayarlar")
                 }
-                .buttonStyle(.plain)
-                .padding(6)
-                .background(Color.primary.opacity(0.06))
-                .clipShape(Circle())
-                .disabled(appState.isLoading || !appState.isLoggedIn)
-                .help("Anlık veriyi yenile")
             }
 
             // Quick Station Switcher Tabs (when user has multiple stations)
