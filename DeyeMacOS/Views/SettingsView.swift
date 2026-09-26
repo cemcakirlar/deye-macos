@@ -68,6 +68,36 @@ public struct SettingsView: View {
                         Text("Kapalıyken (varsayılan), uygulama ilk çalıştığında ana pencere gizli kalır ve doğrudan menü çubuğunda sessizce başlar. İhtiyaç duyduğunuzda menü çubuğundaki 'Ana Pencere' butonundan açabilirsiniz.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        Toggle("Dock'ta göster", isOn: Binding(
+                            get: { appState.showInDock },
+                            set: { appState.setShowInDock($0) }
+                        ))
+
+                        Text("Kapalıyken (varsayılan), uygulama Dock'ta görünmez ve yalnızca menü çubuğunda yaşar. Açıldığında klasik Dock ikonu görünür.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Toggle("Oturum açıldığında başlat", isOn: Binding(
+                            get: { appState.openAtLogin },
+                            set: { appState.setOpenAtLogin($0) }
+                        ))
+
+                        Text("macOS'a giriş yaptığınızda uygulamayı otomatik olarak başlatır (Login Items / SMAppService).")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        if LaunchIntegration.openAtLoginRequiresApproval {
+                            Text("Sistem Ayarları › Genel › Açılışta Açılanlar bölümünden onay vermeniz gerekiyor.")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+
+                        if let loginError = appState.loginItemErrorMessage {
+                            Text(loginError)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        }
                     }
 
                     Section("Menü Çubuğu (Status Bar)") {

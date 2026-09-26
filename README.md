@@ -16,6 +16,8 @@ Seamlessly integrates with the DeyeCloud Open API across global regions (Europe 
   - Use it as an unobtrusive menu bar companion or open a full desktop dashboard.
   - Interactive live energy flow diagram (PV Array ➔ Inverter ➔ Grid / Home / Battery directional arrows and real-time power readings).
   - Configurable startup preference (start silently in menu bar or open desktop window on launch).
+  - **Dock visibility** toggle (default: hidden / menu-bar-only via `NSApp.setActivationPolicy(.accessory)`).
+  - **Open at Login** via modern `SMAppService` Login Items API.
 - **Global Multi-Region & Custom Data Center Support:**
   - Direct selection of official Deye Cloud data centers:
     - **Europe, Turkey & Africa (`eu1`)**
