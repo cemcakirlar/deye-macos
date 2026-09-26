@@ -27,15 +27,16 @@ release:
 package:
 	@./scripts/package.sh
 
+# DEFAULT RELEASE = patch. Use release-minor / release-major only when explicitly requested.
 # Release SemVer Patch version (Changelog, Tag, GH Release)
 release-patch:
 	@./scripts/release.sh patch
 
-# Release SemVer Minor version (Changelog, Tag, GH Release)
+# Release SemVer Minor version (Changelog, Tag, GH Release) — not the default
 release-minor:
 	@./scripts/release.sh minor
 
-# Release SemVer Major version (Changelog, Tag, GH Release)
+# Release SemVer Major version (Changelog, Tag, GH Release) — not the default
 release-major:
 	@./scripts/release.sh major
 
@@ -43,7 +44,7 @@ release-major:
 release-publish:
 	@./scripts/release.sh $(if $(VERSION),$(VERSION),patch)
 
-# Simulate full release cycle without making permanent changes
+# Simulate full release cycle without making permanent changes (defaults to patch)
 release-dry-run:
 	@./scripts/release.sh $(if $(VERSION),$(VERSION),patch) --dry-run
 
@@ -69,11 +70,11 @@ help:
 	@echo "  make build           : Compile Debug configuration only"
 	@echo "  make release         : Compile Release configuration only"
 	@echo "  make package         : Build Release and package distribution archive (dist/)"
-	@echo "  make release-patch   : Bump and release SemVer Patch version (e.g. 1.0.0 -> 1.0.1)"
-	@echo "  make release-minor   : Bump and release SemVer Minor version (e.g. 1.0.0 -> 1.1.0)"
-	@echo "  make release-major   : Bump and release SemVer Major version (e.g. 1.0.0 -> 2.0.0)"
-	@echo "  make release-publish : Release specified version (e.g. make release-publish VERSION=1.2.0)"
-	@echo "  make release-dry-run : Simulate full release cycle safely without changes"
+	@echo "  make release-patch   : DEFAULT release — SemVer patch (e.g. 1.0.3 -> 1.0.4)"
+	@echo "  make release-minor   : Minor bump only when explicitly requested (e.g. 1.0.0 -> 1.1.0)"
+	@echo "  make release-major   : Major bump only when explicitly requested (e.g. 1.0.0 -> 2.0.0)"
+	@echo "  make release-publish : Release specified version (defaults to patch if VERSION unset)"
+	@echo "  make release-dry-run : Simulate full release cycle (defaults to patch)"
 	@echo "  make install         : Build Release and install to /Applications"
 	@echo "  make logs            : Stream live application logs"
 	@echo "  make clean           : Clean build artifacts and cache"

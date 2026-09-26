@@ -214,24 +214,26 @@ To filter out CT clamp and BMS measurement noise or calibrate when power flow ar
 
 The project adheres to **[Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)**, **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**, **[Keep a Changelog](https://keepachangelog.com/en/1.1.0/)**, and **GitHub Releases** standards.
 
+**Default release = patch.** Agents and humans should run `make release-patch` (or `make release-publish` / `make release-dry-run`, which default to patch) unless Cem explicitly asks for a minor or major bump.
+
 ### Single-Command Release Orchestration
 
 Run any of the following commands to execute the full release cycle in a single automated step:
 
 ```bash
-# 1. Patch Release (Bug fixes: e.g. 1.0.0 -> 1.0.1)
+# 1. Patch Release — DEFAULT (e.g. 1.0.3 -> 1.0.4)
 make release-patch
 
-# 2. Minor Release (Backwards-compatible features: e.g. 1.0.0 -> 1.1.0)
+# 2. Minor Release — only when explicitly requested (e.g. 1.0.0 -> 1.1.0)
 make release-minor
 
-# 3. Major Release (Breaking/architectural changes: e.g. 1.0.0 -> 2.0.0)
+# 3. Major Release — only when explicitly requested (e.g. 1.0.0 -> 2.0.0)
 make release-major
 
-# 4. Explicit Version Specification
+# 4. Explicit Version Specification (omit VERSION to default to patch)
 make release-publish VERSION=1.2.0
 
-# 5. Safe Simulation (Dry-Run: tests the cycle without applying changes or pushing)
+# 5. Safe Simulation (Dry-Run; defaults to patch unless VERSION is set)
 make release-dry-run
 ```
 

@@ -28,10 +28,12 @@ Deye Solar Monitor - Release Cycle & Version Manager
 Usage:
   ./scripts/release.sh [patch | minor | major | <version>] [OPTIONS]
 
+Default release = patch. Use minor/major only when explicitly requested.
+
 Options:
-  patch                  : Bump patch version (e.g. 1.0.0 -> 1.0.1) [Default]
-  minor                  : Bump minor version (e.g. 1.0.0 -> 1.1.0)
-  major                  : Bump major version (e.g. 1.0.0 -> 2.0.0)
+  patch                  : Bump patch version (e.g. 1.0.3 -> 1.0.4) [DEFAULT]
+  minor                  : Bump minor version (e.g. 1.0.0 -> 1.1.0) — not the default
+  major                  : Bump major version (e.g. 1.0.0 -> 2.0.0) — not the default
   <X.Y.Z>                : Specify exact SemVer version (e.g. 1.2.0)
   --dry-run              : Simulate all steps without making permanent changes
   --no-push              : Commit and tag locally, but do not push to remote or GitHub
