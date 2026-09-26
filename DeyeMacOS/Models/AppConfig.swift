@@ -9,6 +9,9 @@ public struct AppConfig: Codable, Sendable, Equatable {
     public var refreshInterval: TimeInterval = 300
     public var menuBarDisplayMode: MenuBarDisplayMode = .solarAndBattery
     public var showMainWindowOnLaunch: Bool = false
+    /// Default `false`: menu-bar-only (hide from Dock) unless the user opts in.
+    public var showInDock: Bool = false
+    public var openAtLogin: Bool = false
     public var gridImportThresholdW: Double = 150.0
     public var gridExportThresholdW: Double = 150.0
     public var batteryChargeThresholdW: Double = 200.0
@@ -32,6 +35,8 @@ public struct AppConfig: Codable, Sendable, Equatable {
         static let legacyPowerThreshold = "deye_power_threshold_w"
         static let batteryPowerThreshold = "deye_battery_power_threshold_w"
         static let showMainWindowOnLaunch = "deye_show_main_window_on_launch"
+        static let showInDock = "deye_show_in_dock"
+        static let openAtLogin = "deye_open_at_login"
     }
 
     public static func load(defaults: UserDefaults = .standard) -> AppConfig {
@@ -61,6 +66,9 @@ public struct AppConfig: Codable, Sendable, Equatable {
         config.batteryDischargeThresholdW = doubleValue(forKey: Keys.batteryDischargeThreshold, defaults: defaults) ?? legacyBattery ?? 200.0
 
         config.showMainWindowOnLaunch = defaults.bool(forKey: Keys.showMainWindowOnLaunch)
+        // Unset key → false via bool(forKey:): default hides from Dock (menu-bar-first).
+        config.showInDock = defaults.bool(forKey: Keys.showInDock)
+        config.openAtLogin = defaults.bool(forKey: Keys.openAtLogin)
 
         if let data = defaults.data(forKey: Keys.selectedDataCenter),
            let savedCenter = try? JSONDecoder().decode(DeyeDataCenter.self, from: data) {
@@ -82,6 +90,8 @@ public struct AppConfig: Codable, Sendable, Equatable {
         defaults.set(refreshInterval, forKey: Keys.refreshInterval)
         defaults.set(menuBarDisplayMode.rawValue, forKey: Keys.menuBarDisplayMode)
         defaults.set(showMainWindowOnLaunch, forKey: Keys.showMainWindowOnLaunch)
+        defaults.set(showInDock, forKey: Keys.showInDock)
+        defaults.set(openAtLogin, forKey: Keys.openAtLogin)
         defaults.set(gridImportThresholdW, forKey: Keys.gridImportThreshold)
         defaults.set(gridExportThresholdW, forKey: Keys.gridExportThreshold)
         defaults.set(batteryChargeThresholdW, forKey: Keys.batteryChargeThreshold)

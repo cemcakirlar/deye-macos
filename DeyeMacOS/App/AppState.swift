@@ -13,6 +13,7 @@ public final class AppState: ObservableObject {
     @Published public var stationSnapshots: [Int64: StationSnapshot] = [:]
     @Published public var isLoading: Bool = false
     @Published public var errorMessage: String? = nil
+    @Published public var loginItemErrorMessage: String? = nil
     @Published public var needsStationSelection: Bool = false
     @Published public var config: AppConfig
 
@@ -72,6 +73,16 @@ public final class AppState: ObservableObject {
         set { setShowMainWindowOnLaunch(newValue) }
     }
 
+    public var showInDock: Bool {
+        get { config.showInDock }
+        set { setShowInDock(newValue) }
+    }
+
+    public var openAtLogin: Bool {
+        get { config.openAtLogin }
+        set { setOpenAtLogin(newValue) }
+    }
+
     // MARK: - Private State
 
     private var cachedToken: String?
@@ -94,6 +105,7 @@ public final class AppState: ObservableObject {
 
     public init() {
         config = AppConfig.load()
+        syncOpenAtLoginFromSystem()
         loadStoredConfiguration()
         setupTimer()
 
@@ -191,6 +203,35 @@ public final class AppState: ObservableObject {
     public func setShowMainWindowOnLaunch(_ value: Bool) {
         config.showMainWindowOnLaunch = value
         config.save()
+    }
+
+    public func setShowInDock(_ value: Bool) {
+        config.showInDock = value
+        config.save()
+        LaunchIntegration.applyDockVisibility(showInDock: value)
+    }
+
+    public func setOpenAtLogin(_ value: Bool) {
+        do {
+            try LaunchIntegration.setOpenAtLogin(value)
+            config.openAtLogin = LaunchIntegration.isOpenAtLoginEnabled
+            config.save()
+            loginItemErrorMessage = nil
+        } catch {
+            loginItemErrorMessage = error.localizedDescription
+            config.openAtLogin = LaunchIntegration.isOpenAtLoginEnabled
+            objectWillChange.send()
+        }
+    }
+
+    /// Prefer live `SMAppService` status when it differs from the stored preference
+    /// (e.g. user changed Login Items in System Settings).
+    private func syncOpenAtLoginFromSystem() {
+        let systemEnabled = LaunchIntegration.isOpenAtLoginEnabled
+        if config.openAtLogin != systemEnabled {
+            config.openAtLogin = systemEnabled
+            config.save()
+        }
     }
 
     private func setupTimer() {

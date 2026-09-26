@@ -3,6 +3,12 @@ import AppKit
 
 @MainActor
 public final class AppDelegate: NSObject, NSApplicationDelegate {
+    public func applicationWillFinishLaunching(_ notification: Notification) {
+        // Apply before windows appear so Dock does not flash when hidden (default).
+        let showInDock = AppConfig.load().showInDock
+        LaunchIntegration.applyDockVisibility(showInDock: showInDock)
+    }
+
     public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         WindowManager.shared.showMainWindow()
         return true
